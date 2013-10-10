@@ -1,0 +1,76 @@
+TODO
+====
+
+Funzioni varie
+--------------
+(pulsante fatture scadute)
+(notifica fattura scaduta)
+(fattura insoluta)
+Reports pdf
+Export csv
+Ricerca estesa alle righe
+Controllo numero fatture mancanti
+Gestione ulteriori percentuali (es. ritenute su fatture di professionisti)
+
+
+
+Summary
+-------
+- Fatture scadute
+- Fatture in scadenza
+
+
+
+Preferenze
+----------
+Templates
+- (Email notify)
+Notifies
+  - (Abilita notifica fattura scaduta a cliente)
+  - (Abilita notifica fattura scaduta ad azienda)
+  - (Periodicità notifiche)
+
+
+
+Statistiche
+-----------
+
+Generali
+- Fatturato totale
+- Credito totale
+- Credito scaduto totale
+- Importo medio fatture
+- (Insoluto)
+
+Per anno
+- Fatturato
+- (Insoluto)
+
+Per cliente
+- Fatturato
+- Credito
+- Credito scaduto
+- Importo medio fatture
+- (Insoluto)
+
+
+Filtri
+------
+Data: Tutte - Anno ... - Dal ... al ...
+Cliente - Tutti - lista clienti
+Stato: Tutte - Pagate - (In scadenza) - Scadute
+
+
+
+Ordinamenti
+-----------
+- scadenza
+- cliente (con tab eventualmente)
+- data
+- importo
+
+
+
+Report
+------
+Situazione clienti

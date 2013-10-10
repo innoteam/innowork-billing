@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<database>
+
+    <table name="innowork_billing_invoices">
+        <field  name="id"   type="integer"  notnull="1"/>
+        <field  name="ownerid"  type="integer"  notnull="1"/>
+        <field  name="customerid"   type="integer"/>
+        <field  name="projectid"    type="integer"/>
+        <field  name="number"   type="text" notnull="1"/>
+        <field  name="paymentid" type="integer" notnull="1"/>
+        <field  name="emissiondate" type="timestamp"/>
+        <field  name="duedate"  type="timestamp"/>
+        <field  name="amount"   type="text"/>
+        <field  name="vat"  type="text"/>
+        <field  name="total"    type="text"/>
+        <field  name="paidamount"   type="text"/>
+        <field  name="trashed"  type="boolean"/>
+        <field name="accountmanager" type="text"/>
+        <key    field="id"  type="unique"/>
+    </table>
+
+    <sequence	name="innowork_billing_invoices_id_seq"/>
+
+</database>

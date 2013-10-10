@@ -1,0 +1,54 @@
+General information
+-------------------
+
+Xen Billing is a Xen Intranet series application. It is designed for simple
+billing.
+
+
+
+License
+-------
+See the file named LICENSE.
+
+
+
+Requirements
+------------
+
+Serverside:
+	a working Ampoliros platform installation.
+
+Clientside:
+	a web browser with HTML 4.0 and CSS support.
+
+
+
+Installation
+------------
+
+See the file named INSTALL.
+
+
+
+Additional Information
+----------------------
+
+Ampoliros official home page:
+	http://www.ampoliros.com
+
+Xen Billing official home page:
+	http://www.ampoliros.com
+
+To submit a bug report:
+	send an email to supporto@solarix.it
+
+To submit a support request:
+	send an email to supporto@solarix.it
+
+
+
+Disclaimer
+----------
+
+There is no warranty, expressed or implied, associated with this product.
+Use at your own risk.

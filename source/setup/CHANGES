@@ -1,0 +1,68 @@
+1.3.1 - 2004/10/15
+------------------
+NEW FEATURES:
+- Added firstname and lastname tags to invoice template. (Alex Pagnoni)
+
+
+
+1.3 - 2004/07/15
+----------------
+CHANGES:
+- Now invoice rows amount is no more formatted when editing an invoice. (Alex Pagnoni)
+
+
+
+1.2 - 2004/04/15
+----------------
+NEW FEATURES:
+- Added month filter. (Alex Pagnoni)
+- Added support for second fiscal code in invoice template. (Alex Pagnoni)
+
+CHANGES:
+- Now changes are logged. (Alex Pagnoni)
+- Now XenDirectory 1.2 is required. (Alex Pagnoni)
+- Only companies of type customer or customer/supplier are listed. (Alex Pagnoni)
+
+FIXES:
+- The item cache now gets flushed when updating the paidamount field through
+  XenInvoice->SetPaidAmount(). (Alex Pagnoni)
+- Fixed missing dispatcher descriptor in invoice payment panel. (Alex Pagnoni)
+
+
+
+1.1 - 2003/12/15
+----------------
+NEW FEATURES:
+- Added account manager field in invoices. (Alex Pagnoni)
+- Added account manager filter. (Alex Pagnoni)
+- Added quantity and discount fields in invoice rows. (Alex Pagnoni)
+- Improved speed. (Alex Pagnoni)
+- Added "number" to the searchable keys. (Alex Pagnoni)
+
+CHANGES:
+- Adapted to Xen Core 2.1 organization. (Alex Pagnoni)
+
+FIXES:
+- Fixed item type definition in xenbilling.library. (Alex Pagnoni)
+- Fixed "Edit payment" button in payments preferences. (Alex Pagnoni)
+
+
+
+1.0.2 - 2003/09/30
+------------------
+NEW FEATURES:
+- Added shared trashcan support. (Alex Pagnoni)
+- Added sorting in main invoices list. (Alex Pagnoni)
+
+
+
+1.0.1 - 2003/05/08
+------------------
+NEW FEATURES:
+- Added total invoices amount in main page. (Alex Pagnoni)
+
+
+
+1.0 - 2003/04/02
+----------------
+- First release.

@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<database>
+
+    <table name="innowork_billing_vat_codes">
+        <field	name="id"   type="integer"  notnull="1"/>
+        <field  name="vat"  type="string" length="25" notnull="1"/>
+        <field  name="percentual"   type="string" length="5" notnull="1"/>
+        <key    field="id"  type="unique"/>
+    </table>
+
+    <sequence name="innowork_billing_vat_codes_id_seq"/>
+
+</database>
