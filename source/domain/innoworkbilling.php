@@ -2343,7 +2343,6 @@ $gMain_disp->Dispatch();
 $gHui->AddChild( new HuiAmpPage( 'page', array(
     'pagetitle' => $gPage_title,
     'icon' => 'document',
-    'menu' => $gXen_core->GetMainMenu(),
     'toolbars' => array(
         new HuiAmpToolBar(
             'core',
