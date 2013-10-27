@@ -2344,16 +2344,16 @@ $gHui->AddChild( new HuiAmpPage( 'page', array(
     'pagetitle' => $gPage_title,
     'icon' => 'document',
     'toolbars' => array(
+        new HuiAmpToolbar(
+            'main',
+            array(
+                'toolbars' => $gToolbars
+                ) ),
         new HuiAmpToolBar(
             'core',
             array(
                 'toolbars' => $gCore_toolbars
                 ) ),
-        new HuiAmpToolbar(
-            'main',
-            array(
-                'toolbars' => $gToolbars
-                ) )
             ),
     'maincontent' => new HuiXml(
         'page', array(
