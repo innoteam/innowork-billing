@@ -337,7 +337,7 @@ function main_default( $eventData )
         'main' => array(
             'edit' => array(
                 'label' => $gLocale->GetStr( 'editvat.button' ),
-                'themeimage' => 'edit',
+                'themeimage' => 'pencil',
                 'horiz' => 'true',
                 'action' => build_events_call_string( '', array( array(
                     'main',
@@ -446,7 +446,7 @@ function main_newvat(
 
         <button><name>apply</name>
           <args>
-            <themeimage>button_ok</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( build_events_call_string( '', array(
@@ -546,7 +546,7 @@ function main_editvat(
 
         <button><name>apply</name>
           <args>
-            <themeimage>button_ok</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( build_events_call_string( '', array(
@@ -628,7 +628,7 @@ function main_payments( $eventData )
         'main' => array(
             'edit' => array(
                 'label' => $gLocale->GetStr( 'editpayment.button' ),
-                'themeimage' => 'edit',
+                'themeimage' => 'pencil',
                 'horiz' => 'true',
                 'action' => build_events_call_string( '', array( array(
                     'main',
@@ -749,7 +749,7 @@ function main_newpayment(
 
         <button><name>apply</name>
           <args>
-            <themeimage>button_ok</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( build_events_call_string( '', array(
@@ -866,7 +866,7 @@ function main_editpayment(
 
         <button><name>apply</name>
           <args>
-            <themeimage>button_ok</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( build_events_call_string( '', array(
@@ -1022,7 +1022,7 @@ function main_settings(
 
             <button><name>apply</name>
               <args>
-                <themeimage>button_ok</themeimage>
+                <themeimage>buttonok</themeimage>
                 <horiz>true</horiz>
                 <frame>false</frame>
                 <action type="encoded">'.urlencode( build_events_call_string( '', array(
@@ -1104,7 +1104,7 @@ function main_settings(
 
             <button><name>apply</name>
               <args>
-                <themeimage>button_ok</themeimage>
+                <themeimage>buttonok</themeimage>
                 <horiz>true</horiz>
                 <frame>false</frame>
                 <action type="encoded">'.urlencode( build_events_call_string( '', array(
@@ -1170,7 +1170,7 @@ function main_settings(
 
             <button><name>apply</name>
               <args>
-                <themeimage>button_ok</themeimage>
+                <themeimage>buttonok</themeimage>
                 <horiz>true</horiz>
                 <frame>false</frame>
                 <action type="encoded">'.urlencode( build_events_call_string( '', array(

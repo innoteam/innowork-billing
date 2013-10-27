@@ -963,7 +963,7 @@ if ( $row >= $from and $row <= $to )
         'main' => array(
             'show' => array(
                 'label' => $gLocale->GetStr( 'showinvoice.button' ),
-                'themeimage' => 'viewmag',
+                'themeimage' => 'zoom',
                 'horiz' => 'true',
                 'action' => build_events_call_string( '', array( array(
                     'main',
@@ -1000,7 +1000,7 @@ if ( $row >= $from and $row <= $to )
                 ),
             'remove' => array(
                 'label' => $gLocale->GetStr( 'removeinvoice.button' ),
-                'themeimage' => 'edittrash',
+                'themeimage' => 'trash',
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'removeinvoice.confirm' ),
@@ -1302,7 +1302,7 @@ function main_newinvoice( $eventData )
 
         <button row="1" col="0"><name>apply</name>
           <args>
-            <themeimage>button_ok</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <formsubmit>invoice</formsubmit>
@@ -1829,7 +1829,7 @@ $users_query->Free();
 
         <button><name>remove</name>
           <args>
-            <themeimage>edittrash</themeimage>
+            <themeimage>trash</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <needconfirm>true</needconfirm>
@@ -2193,7 +2193,7 @@ function main_invoicepayment(
     <button>
 
       <args>
-            <themeimage>button_ok</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( build_events_call_string( '', array(
@@ -2292,7 +2292,7 @@ function main_sendinvoice(
     <button>
 
       <args>
-            <themeimage>button_ok</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( build_events_call_string( '', array(
