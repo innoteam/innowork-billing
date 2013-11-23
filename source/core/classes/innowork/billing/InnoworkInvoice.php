@@ -1,17 +1,11 @@
 <?php
-/*
- *   Copyright (C) 2003-2004 Solarix
- *
- */
 
-
-OpenLibrary( 'dblayer.library' );
-OpenLibrary( 'logger.library' );
-OpenLibrary( 'xencore.library' );
+require_once('innowork/core/InnoworkCore.php');
+require_once('innowork/core/InnoworkItem.php');
 
 define( 'XENBILLING_INVOICE_ITEM_TYPE', 'billing' );
 
-class XenInvoice extends XenItem
+class InnoworkInvoice extends InnoworkItem
 {
     var $mTable = 'innowork_billing_invoices';
     var $mNewDispatcher = 'main';
@@ -21,13 +15,13 @@ class XenInvoice extends XenItem
     var $mNoTrash = false;
     var $mConvertible = true;
 
-    function XenInvoice(
-        &$rampDb,
-        &$rsiteDb,
+    function InnoworkInvoice(
+        $rampDb,
+        $rsiteDb,
         $invoiceId = 0
         )
     {
-        $this->XenItem(
+        parent::__construct(
             $rampDb,
             $rsiteDb,
             XENBILLING_INVOICE_ITEM_TYPE,
@@ -92,14 +86,13 @@ class XenInvoice extends XenItem
 
         if ( count( $params ) )
         {
-            global $gEnv;
-
             $item_id = $this->mrSiteDb->NextSeqValue( $this->mTable.'_id_seq' );
 
             $key_pre = $value_pre = $keys = $values = '';
 
-            OpenLibrary( 'locale.library' );
-            $country = new LocaleCountry( $GLOBALS['gEnv']['user']['locale']['country'] );
+            require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
+            $country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
 
             while ( list( $key, $val ) = each( $params ) )
             {
@@ -174,8 +167,7 @@ class XenInvoice extends XenItem
                 $start = 1;
                 $update_str = '';
 
-                global $gEnv;
-                $country = new LocaleCountry( $gEnv['user']['locale']['country'] );
+                $country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
 
                 while ( list( $field, $value ) = each( $params ) )
                 {
@@ -221,7 +213,7 @@ class XenInvoice extends XenItem
                     }
                 }
 
-                $query = &$this->mrSiteDb->Execute(
+                $query = $this->mrSiteDb->Execute(
                     'UPDATE '.$this->mTable.' '.
                     'SET '.$update_str.' '.
                     'WHERE id='.$this->mItemId );
@@ -246,7 +238,7 @@ class XenInvoice extends XenItem
 
         if ( $result )
         {
-            $GLOBALS['gEnv']['site']['db']->Execute(
+            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'DELETE FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId
                 );
@@ -261,7 +253,7 @@ class XenInvoice extends XenItem
     {
         $result = FALSE;
 
-        $item_query = &$this->mrSiteDb->Execute(
+        $item_query = $this->mrSiteDb->Execute(
             'SELECT * '.
             'FROM '.$this->mTable.' '.
             'WHERE id='.$this->mItemId
@@ -269,7 +261,7 @@ class XenInvoice extends XenItem
 
         if (
             is_object( $item_query )
-            and $item_query->NumRows()
+            and $item_query->getNumberRows()
             )
         {
             $result = $item_query->Fields();
@@ -293,8 +285,9 @@ class XenInvoice extends XenItem
 
         if ( $this->mItemId )
         {
-            OpenLibrary( 'locale.library' );
-            $locale_country = new LocaleCountry( $GLOBALS['gEnv']['site']['locale']['country'] );
+            require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
+            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
             $amount = number_format(
@@ -304,16 +297,16 @@ class XenInvoice extends XenItem
                 ''
                 );
 
-            $id = $GLOBALS['gEnv']['site']['db']->NextSeqValue( 'innowork_billing_invoices_rows_id_seq' );
+            $id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->NextSeqValue( 'innowork_billing_invoices_rows_id_seq' );
 
-            if ( $GLOBALS['gEnv']['site']['db']->Execute(
+            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'INSERT INTO innowork_billing_invoices_rows (id, invoiceid, description, amount, quantity, discount, vatid ) '.
                 'VALUES ('.$id.','.
                 $this->mItemId.','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text( $description ).','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text( $amount ).','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text( (int)$quantity ).','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text( (int)$discount ).','.
+                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $description ).','.
+                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $amount ).','.
+                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( (int)$quantity ).','.
+                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( (int)$discount ).','.
                 $vatId.')' ) )
             {
                 $this->SetInvoiceTotals(
@@ -342,14 +335,14 @@ class XenInvoice extends XenItem
             $rowId
             )
         {
-            $query = &$GLOBALS['gEnv']['site']['db']->Execute(
+            $query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT * '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId.' '.
                 'AND id='.$rowId
                 );
 
-            if ( $query->NumRows() )
+            if ( $query->getNumberRows() )
             {
                 $result['id'] = $rowId;
                 $result['invoiceid'] = $query->Fields( 'invoiceid' );
@@ -387,8 +380,9 @@ class XenInvoice extends XenItem
             $rowId
             )
         {
-            OpenLibrary( 'locale.library' );
-            $locale_country = new LocaleCountry( $GLOBALS['gEnv']['site']['locale']['country'] );
+            require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
+            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
             $amount = number_format(
@@ -400,12 +394,12 @@ class XenInvoice extends XenItem
 
             $old_row = $this->GetRow( $rowId );
 
-            if ( $GLOBALS['gEnv']['site']['db']->Execute(
+            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'UPDATE innowork_billing_invoices_rows SET '.
-                'description='.$GLOBALS['gEnv']['site']['db']->Format_Text( $description ).','.
-                'amount='.$GLOBALS['gEnv']['site']['db']->Format_Text( $amount ).','.
-                'quantity='.$GLOBALS['gEnv']['site']['db']->Format_Text( (int)$quantity ).','.
-                'discount='.$GLOBALS['gEnv']['site']['db']->Format_Text( (int)$discount ).','.
+                'description='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $description ).','.
+                'amount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $amount ).','.
+                'quantity='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( (int)$quantity ).','.
+                'discount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( (int)$discount ).','.
                 'vatid='.$vatId.' '.
                 'WHERE id='.$rowId.' '.
                 'AND invoiceid='.$this->mItemId ) )
@@ -436,7 +430,7 @@ class XenInvoice extends XenItem
             $rowId
             )
         {
-            if ( $GLOBALS['gEnv']['site']['db']->Execute(
+            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'DELETE FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId.' '.
                 'AND id='.$rowId
@@ -460,17 +454,17 @@ class XenInvoice extends XenItem
         if ( $this->mItemId )
         {
             $locale_country = new LocaleCountry(
-                $GLOBALS['gEnv']['site']['locale']['country']
+                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry()
                 );
 
-            $rows_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+            $rows_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT * '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId.' '.
                 'ORDER BY id'
                 );
 
-            $vats_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+            $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT id,percentual '.
                 'FROM innowork_billing_vat_codes '
                 );
@@ -571,14 +565,15 @@ class XenInvoice extends XenItem
 
         if ( $this->mItemId )
         {
-            OpenLibrary( 'locale.library' );
-            $locale_country = new LocaleCountry( $GLOBALS['gEnv']['site']['locale']['country'] );
+            require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
+            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
 
             $result['amount'] = $result['vat'] = $result['total'] = 0;
 
             $vats = array();
 
-            $vats_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+            $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT id,percentual '.
                 'FROM innowork_billing_vat_codes'
                 );
@@ -590,7 +585,7 @@ class XenInvoice extends XenItem
                 $vats_query->MoveNext();
             }
 
-            $rows_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+            $rows_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT amount,quantity,discount,vatid '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId
@@ -646,13 +641,13 @@ class XenInvoice extends XenItem
 
         if ( $this->mItemId )
         {
-            $query = &$GLOBALS['gEnv']['site']['db']->Execute(
+            $query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT amount,vat,total '.
                 'FROM innowork_billing_invoices '.
                 'WHERE id='.$this->mItemId
                 );
 
-            if ( $query->NumRows() )
+            if ( $query->getNumberRows() )
             {
                 $result['amount'] = $query->Fields( 'amount' );
                 $result['vat'] = $query->Fields( 'vat' );
@@ -671,11 +666,11 @@ class XenInvoice extends XenItem
 
         if ( $this->mItemId )
         {
-            if ( $GLOBALS['gEnv']['site']['db']->Execute(
+            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'UPDATE innowork_billing_invoices '.
-                'SET amount='.$GLOBALS['gEnv']['site']['db']->Format_Text( $totals['amount'] ).','.
-                'vat='.$GLOBALS['gEnv']['site']['db']->Format_Text( $totals['vat'] ).','.
-                'total='.$GLOBALS['gEnv']['site']['db']->Format_Text( $totals['total'] ).' '.
+                'SET amount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $totals['amount'] ).','.
+                'vat='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $totals['vat'] ).','.
+                'total='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $totals['total'] ).' '.
                 'WHERE id='.$this->mItemId
                 ) )
             {
@@ -695,8 +690,9 @@ class XenInvoice extends XenItem
 
         if ( $this->mItemId )
         {
-            OpenLibrary( 'locale.library' );
-            $locale_country = new LocaleCountry( $GLOBALS['gEnv']['site']['locale']['country'] );
+            require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
+            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
 
@@ -707,9 +703,9 @@ class XenInvoice extends XenItem
                 ''
                 );
 
-            if ( $GLOBALS['gEnv']['site']['db']->Execute(
+            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'UPDATE innowork_billing_invoices '.
-                'SET paidamount='.$GLOBALS['gEnv']['site']['db']->Format_Text( $amount ).' '.
+                'SET paidamount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $amount ).' '.
                 'WHERE id='.$this->mItemId
                 ) )
             {
@@ -725,9 +721,9 @@ class XenInvoice extends XenItem
         $number
         )
     {
-        OpenLibrary( 'sites.library' );
+        require_once('innomatic/domain/DomainSettings.php');
 
-        $site_sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
+        $site_sets = new DomainSettings( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess() );
         $site_sets->SetKey(
             'xen-billing-lastinvoicenumber',
             $number
@@ -738,9 +734,9 @@ class XenInvoice extends XenItem
 
     function GetLastInvoiceNumber()
     {
-        OpenLibrary( 'sites.library' );
+        require_once('innomatic/domain/DomainSettings.php');
 
-        $site_sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
+        $site_sets = new DomainSettings( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess() );
         $result = $site_sets->GetKey( 'xen-billing-lastinvoicenumber' );
 
         if ( !strlen( $result ) ) $result = 0;
@@ -751,15 +747,16 @@ class XenInvoice extends XenItem
     function CreateHtmlInvoice()
     {
         OpenLibrary( 'rhtemplate.library' );
-        OpenLibrary( 'locale.library' );
+        require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
         OpenLibrary( 'xenprojects.library' );
         OpenLibrary( 'xendirectory.library' );
 
         $locale_country = new LocaleCountry(
-            $GLOBALS['gEnv']['site']['locale']['country']
+            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry()
             );
 
-        $sets = new XenBilling_SettingsHandler();
+        $sets = new InnoworkBillingSettingsHandler();
 
         $template = new Rh_Template();
         $template->files['invoice'] = $sets->GetInvoiceTemplate();
@@ -772,15 +769,15 @@ class XenInvoice extends XenItem
         $inv_rows = $this->GetRows();
         //print_r($inv_data);
 
-        $payment = new XenBilling_Payment( $inv_data['paymentid'] );
+        $payment = new InnoworkBillingPayment( $inv_data['paymentid'] );
 
         $template->Register( 'invoice', 'tpl_invoice_number', $inv_data['number'] );
         $template->Register( 'invoice', 'tpl_invoice_emissiondate', $locale_country->FormatShortArrayDate(
-                $GLOBALS['gEnv']['site']['db']->GetDateArrayFromTimestamp(
+                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                     $inv_data['emissiondate']
                     ) ) );
         $template->Register( 'invoice', 'tpl_invoice_duedate', $locale_country->FormatShortArrayDate(
-                $GLOBALS['gEnv']['site']['db']->GetDateArrayFromTimestamp(
+                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                     $inv_data['duedate']
                     ) ) );
         $template->Register( 'invoice', 'tpl_invoice_paymenttype', $payment->GetDescription() );
@@ -811,9 +808,9 @@ class XenInvoice extends XenItem
 
         // Customer data
 
-        $xen_company = new XenDirectoryCompany(
-            $GLOBALS['gEnv']['root']['db'],
-            $GLOBALS['gEnv']['site']['db'],
+        $xen_company = new InnoworkDirectoryCompany(
+            InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
             $inv_data['customerid']
             );
 
@@ -838,9 +835,9 @@ class XenInvoice extends XenItem
 
         // Project data
 
-        $xen_project = new XenProject(
-            $GLOBALS['gEnv']['root']['db'],
-            $GLOBALS['gEnv']['site']['db'],
+        $xen_project = new InnoworkProject(
+            InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
             $inv_data['projectid']
             );
 
@@ -866,7 +863,7 @@ class XenInvoice extends XenItem
             OpenLibrary( 'modules.library' );
 
             $mod_deps = new ModuleDep(
-                $GLOBALS['gEnv']['root']['db']
+                InnomaticContainer::instance('innomaticcontainer')->getDataAccess()
                 );
             if (
                 $mod_deps->IsInstalled( 'htmlmimemail' )
@@ -884,9 +881,9 @@ class XenInvoice extends XenItem
                     isset( $inv_data['customerid'] )
                     )
                 {
-                    $xen_customer = new XenDirectoryCompany(
-                        $GLOBALS['gEnv']['root']['db'],
-                        $GLOBALS['gEnv']['site']['db'],
+                    $xen_customer = new InnoworkDirectoryCompany(
+                        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+                        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
                         $inv_data['customerid']
                         );
 
@@ -903,12 +900,13 @@ class XenInvoice extends XenItem
                 {
                     OpenLibrary( 'htmlmimemail.library' );
                     OpenLibrary( 'smtpsend.library' );
-                    OpenLibrary( 'locale.library' );
+                    require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
 
-                    $sets = new XenBilling_SettingsHandler();
+                    $sets = new InnoworkBillingSettingsHandler();
 
                     $locale = new Locale(
-                        'xenbilling_misc',
+                        'innoworkbilling_misc',
                         $GLOBALS['gEnv']['site']['locale']['language']
                         );
 
@@ -920,7 +918,7 @@ class XenInvoice extends XenItem
                     $smtp->port = 25;
                     $smtp->SetRecipient( $email );
 
-                    $mail = new html_mime_mail( 'X-Mailer: XenBilling' );
+                    $mail = new html_mime_mail( 'X-Mailer: InnoworkBilling' );
                     $html = $this->CreateHtmlInvoice();
                     $mail->add_html( $html, '', '' );
                     $mail->set_charset( 'iso-8859-1' );
@@ -949,488 +947,6 @@ class XenInvoice extends XenItem
     }
 }
 
-class XenBilling_Vat
-{
-    var $mId = 0;
-    var $mDescription;
-    var $mPercentual;
 
-    function XenBilling_Vat(
-        $id = 0
-        )
-    {
-        $id = (int)$id;
-
-        if ( $id )
-        {
-            $check_query = &$GLOBALS['gEnv']['site']['db']->Execute(
-                'SELECT * '.
-                'FROM innowork_billing_vat_codes '.
-                'WHERE id='.$id
-                );
-
-            if ( $check_query->NumRows() )
-            {
-                $this->mId = $id;
-                $this->mDescription = $check_query->Fields( 'vat' );
-                $this->mPercentual = $check_query->Fields( 'percentual' );
-
-                $check_query->Free();
-            }
-        }
-    }
-
-    function Create(
-        $description,
-        $percentual
-        )
-    {
-        $result = false;
-
-        if ( !$this->mId )
-        {
-            $id = $GLOBALS['gEnv']['site']['db']->NextSeqValue( 'innowork_billing_vat_codes_id_seq' );
-
-            if ( $GLOBALS['gEnv']['site']['db']->Execute(
-                'INSERT INTO innowork_billing_vat_codes VALUES ('.
-                $id.','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text( $description ).','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text( $percentual ).')' ) )
-            {
-                $this->mId = $id;
-                $this->mDescription = $description;
-                $this->mPercentual = $percentual;
-
-                $result = true;
-            }
-        }
-
-        return $result;
-    }
-
-    function GetDescription()
-    {
-        return $this->mDescription;
-    }
-
-    function SetDescription(
-        $description
-        )
-    {
-        $result = false;
-
-        if (
-            $this->mId
-            and
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'UPDATE innowork_billing_vat_codes '.
-                'SET vat='.$GLOBALS['gEnv']['site']['db']->Format_Text( $description ).' '.
-                'WHERE id='.$this->mId
-                )
-            )
-        {
-            $this->mDescription = $description;
-
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    function GetPercentual()
-    {
-        return $this->mPercentual;
-    }
-
-    function SetPercentual(
-        $percentual
-        )
-    {
-        $result = false;
-
-        if (
-            $this->mId
-            and
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'UPDATE innowork_billing_vat_codes '.
-                'SET percentual='.$GLOBALS['gEnv']['site']['db']->Format_Text( $percentual ).' '.
-                'WHERE id='.$this->mId
-                )
-            )
-        {
-            $this->mPercentual = $percentual;
-
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    function Remove()
-    {
-        $result = false;
-
-        if (
-            $this->mId
-            and
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'DELETE FROM innowork_billing_vat_codes '.
-                'WHERE id='.$this->mId
-                )
-            )
-        {
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'UPDATE innowork_billing_invoices_rows '.
-                'SET vatid=0 '.
-                'WHERE vatid='.$this->mId
-                );
-
-            $sets = new XenBilling_SettingsHandler();
-
-            if ( $sets->GetDefaultVat() == $this->mId )
-            {
-                $sets->SetDefaultVat( '0' );
-            }
-
-            $this->mId = 0;
-            $this->mDescription = $this->mPercentual = '';
-
-            $result = true;
-        }
-
-        return $result;
-    }
-}
-
-class XenBilling_Payment
-{
-    var $mId = 0;
-    var $mDescription;
-    var $mDays = 0;
-    var $mMonthEnd = false;
-
-    function XenBilling_Payment(
-        $id = 0
-        )
-    {
-        $id = (int)$id;
-
-        if ( $id )
-        {
-            $check_query = &$GLOBALS['gEnv']['site']['db']->Execute(
-                'SELECT * '.
-                'FROM innowork_billing_payments '.
-                'WHERE id='.$id
-                );
-
-            if ( $check_query->NumRows() )
-            {
-                $this->mId = $id;
-                $this->mDescription = $check_query->Fields( 'description' );
-                $this->mDays = $check_query->Fields( 'days' );
-                $this->mMonthEnd = $check_query->Fields( 'monthend' ) == $GLOBALS['gEnv']['site']['db']->fmttrue ? true : false;
-
-                $check_query->Free();
-            }
-        }
-    }
-
-    function Create(
-        $description,
-        $days,
-        $monthEnd
-        )
-    {
-        $result = false;
-
-        if ( !$this->mId )
-        {
-            $id = $GLOBALS['gEnv']['site']['db']->NextSeqValue( 'innowork_billing_payments_id_seq' );
-            $days = (int)$days;
-            if ( !strlen( $days ) ) $days = 0;
-
-            if ( $GLOBALS['gEnv']['site']['db']->Execute(
-                'INSERT INTO innowork_billing_payments VALUES ('.
-                $id.','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text( $description ).','.
-                $days.','.
-                $GLOBALS['gEnv']['site']['db']->Format_Text(
-                    $monthEnd ?
-                    $GLOBALS['gEnv']['site']['db']->fmttrue :
-                    $GLOBALS['gEnv']['site']['db']->fmtfalse
-                    ).')' ) )
-            {
-                $this->mId = $id;
-                $this->mDescription = $description;
-                $this->mDays = $days;
-                $this->mMonthEnd = $monthEnd;
-
-                $result = true;
-            }
-        }
-
-        return $result;
-    }
-
-    function GetDescription()
-    {
-        return $this->mDescription;
-    }
-
-    function SetDescription(
-        $description
-        )
-    {
-        $result = false;
-
-        if (
-            $this->mId
-            and
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'UPDATE innowork_billing_payments '.
-                'SET description='.$GLOBALS['gEnv']['site']['db']->Format_Text( $description ).' '.
-                'WHERE id='.$this->mId
-                )
-            )
-        {
-            $this->mDescription = $description;
-
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    function GetDays()
-    {
-        return $this->mDays;
-    }
-
-    function SetDays(
-        $days
-        )
-    {
-        $result = false;
-
-        $days = (int)$days;
-        if ( !strlen( $days ) ) $days = 0;
-
-        if (
-            $this->mId
-            and
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'UPDATE innowork_billing_payments '.
-                'SET days='.$days.' '.
-                'WHERE id='.$this->mId
-                )
-            )
-        {
-            $this->mDays = $days;
-
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    function GetMonthEnd()
-    {
-        return $this->mMonthEnd;
-    }
-
-    function SetMonthEnd(
-        $monthEnd
-        )
-    {
-        $result = false;
-
-        if (
-            $this->mId
-            and
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'UPDATE innowork_billing_payments '.
-                'SET monthend='.(
-                    $monthEnd ?
-                    $GLOBALS['gEnv']['site']['db']->fmttrue :
-                    $GLOBALS['gEnv']['site']['db']->fmtfalse
-                    ).' '.
-                'WHERE id='.$this->mId
-                )
-            )
-        {
-            $this->mMonthEnd = $monthEnd;
-
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    function Remove()
-    {
-        $result = false;
-
-        if (
-            $this->mId
-            and
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'DELETE FROM innowork_billing_payments '.
-                'WHERE id='.$this->mId
-                )
-            )
-        {
-            $GLOBALS['gEnv']['site']['db']->Execute(
-                'UPDATE innowork_billing_invoices_rows '.
-                'SET paymentid=0 '.
-                'WHERE paymentid='.$this->mId
-                );
-
-            $sets = new XenBilling_SettingsHandler();
-
-            if ( $sets->GetDefaultPayment() == $this->mId )
-            {
-                $sets->SetDefaultPayment( '0' );
-            }
-
-            $this->mId = 0;
-            $this->mDescription = '';
-            $this->mDays = 0;
-            $this->mMonthEnd = false;
-
-            $result = true;
-        }
-
-        return $result;
-    }
-}
-
-class XenBilling_SettingsHandler
-{
-    function GetDefaultVat()
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->GetKey( 'xenbilling-default-vat' );
-    }
-
-    function SetDefaultVat(
-        $defaultVat
-        )
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->SetKey( 'xenbilling-default-vat', $defaultVat );
-    }
-
-    function GetDefaultPayment()
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->GetKey( 'xenbilling-default-payment' );
-    }
-
-    function SetDefaultPayment(
-        $defaultPayment
-        )
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->SetKey( 'xenbilling-default-payment', $defaultPayment );
-    }
-
-    function GetInvoiceTemplate()
-    {
-        $result = '';
-
-        $file_name = SITESTUFF_PATH.$GLOBALS['gEnv']['site']['id'].'/etc/xenbilling_invoice.html';
-
-        if (
-            file_exists( $file_name )
-            and
-            $fp = fopen( $file_name, 'r' )
-            )
-        {
-            $result = fread( $fp, filesize( $file_name ) );
-            fclose( $fh );
-        }
-        else
-        {
-            OpenLibrary( 'locale.library' );
-
-            $locale = new Locale(
-                'xenbilling_misc',
-                $GLOBALS['gEnv']['user']['locale']['language']
-                );
-
-            $result = $locale->GetStr( 'notemplate_set' );
-        }
-
-        return $result;
-    }
-
-    function SetInvoiceTemplate(
-        $invoiceTemplateContent
-        )
-    {
-        $result = false;
-
-        $file_name = SITESTUFF_PATH.$GLOBALS['gEnv']['site']['id'].'/etc/xenbilling_invoice.html';
-
-        if ( $fp = fopen( $file_name, 'w' ) )
-        {
-            $result = fwrite( $fp, $invoiceTemplateContent );
-        }
-
-        return $result;
-    }
-
-    function GetNotifiesEmail()
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->GetKey( 'xenbilling-notifies-email' );
-    }
-
-    function SetNotifiesEmail(
-        $email
-        )
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->SetKey( 'xenbilling-notifies-email', $email );
-    }
-
-    function GetEmail()
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->GetKey( 'xenbilling-email' );
-    }
-
-    function SetEmail(
-        $email
-        )
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->SetKey( 'xenbilling-email', $email );
-    }
-
-    function GetSmtpServer()
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->GetKey( 'xenbilling-smtp-server' );
-    }
-
-    function SetSmtpServer(
-        $server
-        )
-    {
-        OpenLibrary( 'sites.library' );
-        $sets = new SiteSettings( $GLOBALS['gEnv']['site']['db'] );
-        return $sets->SetKey( 'xenbilling-smtp-server', $server );
-    }
-}
 
 ?>

@@ -1,43 +1,36 @@
 <?php
-/*
- *   Copyright (C) 2003-2004 Solarix
- *
- */
- 
-// ----- Initialization -----
-//
-require( 'auth.php' );
 
-OpenLibrary( 'xencore.library' );
-OpenLibrary( 'xenbilling.library' );
-OpenLibrary( 'hui.library' );
-OpenLibrary( 'locale.library' );
+require_once('innowork/billing/InnoworkInvoice.php');
 
-$gXen_core = new XenCore(
-    $gEnv['root']['db'],
-    $gEnv['site']['db']
+require_once('innowork/core/InnoworkCore.php');
+require_once 'innowork/billing/InnoworkInvoice.php';
+require_once 'innomatic/wui/Wui.php';
+
+require_once('innomatic/locale/LocaleCatalog.php');
+require_once('innomatic/locale/LocaleCountry.php');
+
+$gInnowork_core = InnoworkCore::instance('innoworkcore', 
+    InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
     );
 
-$gLocale = new Locale(
-    'xenbilling_site_main',
-    $gEnv['user']['locale']['language']
+$gLocale = new LocaleCatalog(
+    'innoworkbilling_site_main',
+    InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getLanguage()
     );
 
-$gHui = new Hui( $gEnv['root']['db'] );
-$gHui->LoadWidget( 'xml' );
-$gHui->LoadWidget( 'amppage' );
-$gHui->LoadWidget( 'amptoolbar' );
-$gHui->LoadWidget( 'table' );
+$gWui = Wui::instance('wui', InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess());
+$gWui->loadAllWidgets();
 
 $gXml_def = $gPage_status = '';
 $gPage_title = $gLocale->GetStr( 'invoices.title' );
-$gCore_toolbars = $gXen_core->GetMainToolBar();
+$gCore_toolbars = $gInnowork_core->GetMainToolBar();
 $gToolbars['invoices'] = array(
     'invoices' => array(
         'label' => $gLocale->GetStr( 'invoices.toolbar' ),
         'themeimage' => 'view_icon',
         'horiz' => 'true',
-        'action' => build_events_call_string( 'xenbilling.php', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( 'xenbilling.php', array( array(
             'main',
             'default',
             '' ) ) )
@@ -46,7 +39,7 @@ $gToolbars['invoices'] = array(
         'label' => $gLocale->GetStr( 'newinvoice.toolbar' ),
         'themeimage' => 'filenew',
         'horiz' => 'true',
-        'action' => build_events_call_string( 'xenbilling.php', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( 'xenbilling.php', array( array(
             'main',
             'newinvoice',
             '' ) ) )
@@ -58,7 +51,7 @@ $gToolbars['prefs'] = array(
         'label' => $gLocale->GetStr( 'preferences.toolbar' ),
         'themeimage' => 'configure',
         'horiz' => 'true',
-        'action' => build_events_call_string( 'xenbillingprefs.php', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( 'xenbillingprefs.php', array( array(
             'main',
             'default',
             '' ) ) )
@@ -67,7 +60,7 @@ $gToolbars['prefs'] = array(
 
 // ----- Action dispatcher -----
 //
-$gAction_disp = new HuiDispatcher( 'action' );
+$gAction_disp = new WuiDispatcher( 'action' );
 
 $gAction_disp->AddEvent(
     'newinvoice',
@@ -75,18 +68,18 @@ $gAction_disp->AddEvent(
     );
 function action_newinvoice( $eventData )
 {
-    global $gEnv, $gLocale, $gPage_status;
+    global $gLocale, $gPage_status;
 
-    $xen_project = new XenInvoice(
-        $gEnv['root']['db'],
-        $gEnv['site']['db']
+    $xen_project = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
 
     if ( $eventData['customerid'] )
     {
-        $customer = new XenDirectoryCompany(
-            $GLOBALS['gEnv']['root']['db'],
-            $GLOBALS['gEnv']['site']['db'],
+        $customer = new InnoworkDirectoryCompany(
+            InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
             $eventData['customerid']
             );
 
@@ -97,12 +90,13 @@ function action_newinvoice( $eventData )
 
     if ( $eventData['paymentid'] )
     {
-        $tmp_payment = new XenBilling_Payment(
+        $tmp_payment = new InnoworkBillingPayment(
             $eventData['paymentid']
             );
 
-            OpenLibrary('locale.library');
-            $country = new LocaleCountry( $GLOBALS['gEnv']['user']['locale']['country'] );
+            require_once('innomatic/locale/LocaleCatalog.php');
+			require_once('innomatic/locale/LocaleCountry.php');
+            $country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
 
             $date_array = $country->GetDateArrayFromShortDateStamp( $eventData['emissiondate'] );
             $emission_date_tstamp = mktime(
@@ -138,7 +132,7 @@ function action_newinvoice( $eventData )
 
     if ( $xen_project->Create(
         $eventData,
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         ) )
     {
         $GLOBALS['gEnv']['runtime']['xen-billing']['newinvoiceid'] = $xen_project->mItemId;
@@ -153,17 +147,17 @@ $gAction_disp->AddEvent(
     );
 function action_editinvoice( $eventData )
 {
-    global $gEnv, $gLocale, $gPage_status;
+    global $gLocale, $gPage_status;
 
-    $xen_invoice = new XenInvoice(
-        $gEnv['root']['db'],
-        $gEnv['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
     if ( $xen_invoice->Edit(
         $eventData,
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         ) ) $gPage_status = $gLocale->GetStr( 'invoice_updated.status' );
     else $gPage_status = $gLocale->GetStr( 'invoice_not_updated.status' );
 }
@@ -174,16 +168,16 @@ $gAction_disp->AddEvent(
     );
 function action_removeinvoice( $eventData )
 {
-    global $gEnv, $gLocale, $gPage_status;
+    global $gLocale, $gPage_status;
 
-    $xen_invoice = new XenInvoice(
-        $gEnv['root']['db'],
-        $gEnv['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
     if ( $xen_invoice->Remove(
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         ) ) $gPage_status = $gLocale->GetStr( 'invoice_removed.status' );
     else $gPage_status = $gLocale->GetStr( 'invoice_not_removed.status' );
 }
@@ -198,9 +192,9 @@ function action_addrow(
 {
     global $gLocale, $gPage_status;
 
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -222,13 +216,13 @@ function action_editrows(
     )
 {
     global $gLocale, $gPage_status;
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
-    $rows_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $rows_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT id '.
         'FROM innowork_billing_invoices_rows '.
         'WHERE invoiceid='.$eventData['invoiceid']
@@ -262,9 +256,9 @@ function action_removerow(
 {
     global $gLocale, $gPage_status;
 
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -283,9 +277,9 @@ function action_invoicepayment(
 {
     global $gLocale, $gPage_status;
 
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -304,9 +298,9 @@ function action_sendinvoice(
 {
     global $gLocale, $gPage_status;
 
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -318,11 +312,11 @@ $gAction_disp->Dispatch();
 
 // ----- Main dispatcher -----
 //
-$gMain_disp = new HuiDispatcher( 'main' );
+$gMain_disp = new WuiDispatcher( 'main' );
 
 function invoices_list_action_builder( $pageNumber )
 {
-    return build_events_call_string( '', array( array(
+    return WuiEventsCall::buildEventsCallString( '', array( array(
             'main',
             'default',
             array( 'pagenumber' => $pageNumber )
@@ -340,15 +334,15 @@ $gMain_disp->AddEvent(
     );
 function main_default( $eventData )
 {
-    global $gEnv, $gLocale, $gPage_title, $gXml_def, $gPage_status, $gXen_core;
+    global $gLocale, $gPage_title, $gXml_def, $gPage_status, $gInnowork_core;
 
 // Account managers
 
-$users_query = &$GLOBALS['gEnv']['root']['db']->Execute(
+$users_query = &InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Execute(
     'SELECT username,lname,fname '.
     'FROM users '.
     'WHERE siteid='.$GLOBALS['gEnv']['site']['serial'].' '.
-    'AND username<>'.$GLOBALS['gEnv']['root']['db']->Format_Text( $GLOBALS['gEnv']['site']['id'] ).' '.
+    'AND username<>'.InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Format_Text( $GLOBALS['gEnv']['site']['id'] ).' '.
     'ORDER BY lname,fname'
     );
 
@@ -368,7 +362,7 @@ $users_query->Free();
     {
         // Customer
 
-        $customer_filter_sk = new HuiSessionKey(
+        $customer_filter_sk = new WuiSessionKey(
             'customer_filter',
             array(
                 'value' => $eventData['filter_customerid']
@@ -379,7 +373,7 @@ $users_query->Free();
 
         // Account manager
 
-        $account_manager_filter_sk = new HuiSessionKey(
+        $account_manager_filter_sk = new WuiSessionKey(
             'account_manager_filter',
             array(
                 'value' => $eventData['filter_account_manager']
@@ -392,7 +386,7 @@ $users_query->Free();
 
         if ( isset( $eventData['filter_year'] ) ) $search_keys['emissiondate'] = $eventData['filter_year'];
 
-        $year_filter_sk = new HuiSessionKey(
+        $year_filter_sk = new WuiSessionKey(
             'year_filter',
             array(
                 'value' => isset( $eventData['filter_year'] ) ? $eventData['filter_year'] : ''
@@ -401,7 +395,7 @@ $users_query->Free();
             
           // Month
 
-	    $month_filter_sk = new HuiSessionKey(
+	    $month_filter_sk = new WuiSessionKey(
 	        'month_filter',
 	        array(
 	            'value' => isset( $eventData['filter_month'] ) ? $eventData['filter_month'] : ''
@@ -411,7 +405,7 @@ $users_query->Free();
 
         // Status
 
-        $status_filter_sk = new HuiSessionKey(
+        $status_filter_sk = new WuiSessionKey(
             'status_filter',
             array(
                 'value' => $eventData['filter_status']
@@ -422,7 +416,7 @@ $users_query->Free();
     {
         // Customer
 
-        $customer_filter_sk = new HuiSessionKey( 'customer_filter' );
+        $customer_filter_sk = new WuiSessionKey( 'customer_filter' );
         if (
             strlen( $customer_filter_sk->mValue )
             and $customer_filter_sk->mValue != 0
@@ -431,7 +425,7 @@ $users_query->Free();
 
         // Account manager
 
-        $account_manager_filter_sk = new HuiSessionKey( 'account_manager_filter' );
+        $account_manager_filter_sk = new WuiSessionKey( 'account_manager_filter' );
         if (
             strlen( $account_manager_filter_sk->mValue )
             and $account_manager_filter_sk->mValue != '0'
@@ -440,18 +434,18 @@ $users_query->Free();
 
         // Year
 
-        $year_filter_sk = new HuiSessionKey( 'year_filter' );
+        $year_filter_sk = new WuiSessionKey( 'year_filter' );
         $eventData['filter_year'] = $year_filter_sk->mValue;
         
         // Month
 
-        $month_filter_sk = new HuiSessionKey( 'month_filter' );
+        $month_filter_sk = new WuiSessionKey( 'month_filter' );
         $eventData['filter_month'] = $month_filter_sk->mValue;
 
 
         // Status
 
-        $status_filter_sk = new HuiSessionKey( 'status_filter' );
+        $status_filter_sk = new WuiSessionKey( 'status_filter' );
         $eventData['filter_status'] = $status_filter_sk->mValue;
     }
     
@@ -470,12 +464,12 @@ $users_query->Free();
 
     // Sorting
 
-    $tab_sess = new HuiSessionKey( 'xenprojecttab' );
+    $tab_sess = new WuiSessionKey( 'xenprojecttab' );
 
     if ( !isset( $eventData['done'] ) ) $eventData['done'] = $tab_sess->mValue;
     if ( !strlen( $eventData['done'] ) ) $eventData['done'] = 'false';
 
-    $tab_sess = new HuiSessionKey(
+    $tab_sess = new WuiSessionKey(
         'xenprojecttab',
         array(
             'value' => $eventData['done']
@@ -483,12 +477,12 @@ $users_query->Free();
         );
 
     $country = new LocaleCountry(
-        $GLOBALS['gEnv']['user']['locale']['country']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
         );
 
-    $summaries = $gXen_core->GetSummaries();
+    $summaries = $gInnowork_core->GetSummaries();
 
-    $table = new HuiTable( 'invoices' );
+    $table = new WuiTable( 'invoices' );
 
     $sort_by = 0;
     if ( strlen( $table->mSortDirection ) ) $sort_order = $table->mSortDirection;
@@ -512,9 +506,9 @@ $users_query->Free();
         if ( strlen( $table->mSortBy ) ) $sort_by = $table->mSortBy;
     }
 
-    $invoices = new XenInvoice(
-        $gEnv['root']['db'],
-        $gEnv['site']['db']
+    $invoices = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
 
     switch ( $sort_by )
@@ -540,42 +534,42 @@ $users_query->Free();
     }
 
     $headers[0]['label'] = $gLocale->GetStr( 'number.header' );
-    $headers[0]['link'] = build_events_call_string( '',
+    $headers[0]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'main',
                     'default',
                     array( 'sortby' => '0' )
                     ) ) );
     $headers[1]['label'] = $gLocale->GetStr( 'emissiondate.header' );
-    $headers[1]['link'] = build_events_call_string( '',
+    $headers[1]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'main',
                     'default',
                     array( 'sortby' => '1' )
                     ) ) );
     $headers[2]['label'] = $gLocale->GetStr( 'customer.header' );
-    $headers[2]['link'] = build_events_call_string( '',
+    $headers[2]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'main',
                     'default',
                     array( 'sortby' => '2' )
                     ) ) );
     $headers[3]['label'] = $gLocale->GetStr( 'total.header' );
-    $headers[3]['link'] = build_events_call_string( '',
+    $headers[3]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'main',
                     'default',
                     array( 'sortby' => '3' )
                     ) ) );
     $headers[4]['label'] = $gLocale->GetStr( 'duedate.header' );
-    $headers[4]['link'] = build_events_call_string( '',
+    $headers[4]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'main',
                     'default',
                     array( 'sortby' => '4' )
                     ) ) );
     $headers[5]['label'] = $gLocale->GetStr( 'paidamount.header' );
-    $headers[5]['link'] = build_events_call_string( '',
+    $headers[5]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
                     'main',
                     'default',
@@ -585,19 +579,19 @@ $users_query->Free();
 
     $search_results = $invoices->Search(
         $search_keys,
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         );
         
     $num_invoices = count( $search_results );
 
-    $xen_customers = new XenDirectoryCompany(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db']
+    $xen_customers = new InnoworkDirectoryCompany(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
 
     $customers_search = $xen_customers->Search(
         '',
-        $GLOBALS['gEnv']['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         );
 
     $customers[0] = $gLocale->GetStr( 'all_customers.label' );
@@ -617,7 +611,7 @@ $users_query->Free();
     unset( $xen_customers );
     unset( $customers_search );
 
-        $locale_country = new LocaleCountry( $GLOBALS['gEnv']['user']['locale']['country'] );
+        $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
 
         $gXml_def =
 '<vertgroup><name>invoices</name>
@@ -632,7 +626,7 @@ $users_query->Free();
 
     <form><name>filter</name>
       <args>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
                     'main',
                     'default',
@@ -682,7 +676,7 @@ $users_query->Free();
             <frame>false</frame>
             <formsubmit>filter</formsubmit>
             <label type="encoded">'.urlencode( $gLocale->GetStr( 'filter.submit' ) ).'</label>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
                     'main',
                     'default',
@@ -702,7 +696,7 @@ $users_query->Free();
     <combobox row="1" col="1"><name>filter_customerid</name>
       <args>
         <disp>main</disp>
-        <elements type="array">'.huixml_encode( $customers ).'</elements>
+        <elements type="array">'.WuiXml::encode( $customers ).'</elements>
         <default type="encoded">'.urlencode( isset( $eventData['filter_customerid'] ) ? $eventData['filter_customerid'] : '' ).'</default>
       </args>
     </combobox>
@@ -715,7 +709,7 @@ $users_query->Free();
     <combobox row="2" col="1"><name>filter_account_manager</name>
       <args>
         <disp>main</disp>
-        <elements type="array">'.huixml_encode( $gUsers ).'</elements>
+        <elements type="array">'.WuiXml::encode( $gUsers ).'</elements>
         <default type="encoded">'.urlencode( isset( $eventData['filter_account_manager'] ) ? $eventData['filter_account_manager'] : '' ).'</default>
       </args>
     </combobox>
@@ -728,7 +722,7 @@ $users_query->Free();
     <combobox row="3" col="1"><name>filter_status</name>
       <args>
         <disp>main</disp>
-        <elements type="array">'.huixml_encode( $statuses ).'</elements>
+        <elements type="array">'.WuiXml::encode( $statuses ).'</elements>
         <default type="encoded">'.urlencode( isset( $eventData['filter_status'] ) ? $eventData['filter_status'] : '' ).'</default>
       </args>
     </combobox>
@@ -753,7 +747,7 @@ $users_query->Free();
         $gXml_def .=
 '    <table><name>invoices</name>
       <args>
-        <headers type="array">'.huixml_encode( $headers ).'</headers>
+        <headers type="array">'.WuiXml::encode( $headers ).'</headers>
         <rowsperpage>10</rowsperpage>
         <pagesactionfunction>invoices_list_action_builder</pagesactionfunction>
         <pagenumber>'.( isset( $eventData['pagenumber'] ) ? $eventData['pagenumber'] : '' ).'</pagenumber>
@@ -778,7 +772,7 @@ $users_query->Free();
                     {
                         OpenLibrary( 'table.hui', HANDLER_PATH );
 
-                        $table = new HuiTable(
+                        $table = new WuiTable(
                             'invoices'
                             );
 
@@ -790,10 +784,10 @@ $users_query->Free();
                     $from = ( $page * 10 ) - 10;
                     $to = $from + 10 - 1;
 
-        $xen_core = new XenCore(
-            $GLOBALS['gEnv']['root']['db'],
-            $GLOBALS['gEnv']['site']['db']
-            );
+        $xen_core = InnoworkCore::instance('innoworkcore', 
+    InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+    );
 
         $summaries = $xen_core->GetSummaries();
 
@@ -802,7 +796,7 @@ $users_query->Free();
             $expired = false;
             // Due date
 
-            $due_date_array = $GLOBALS['gEnv']['site']['db']->GetDateArrayFromTimestamp( $fields['duedate'] );
+            $due_date_array = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp( $fields['duedate'] );
             $due_date = $locale_country->FormatShortArrayDate( $due_date_array );
 
             if ( ( $fields['total'] - $fields['paidamount'] ) > 0 )
@@ -840,17 +834,17 @@ $users_query->Free();
                 if ( $row >= $from and $row <= $to )
                 {
 
-                    $tmp_customer = new XenDirectoryCompany(
-                        $gEnv['root']['db'],
-                        $gEnv['site']['db'],
+                    $tmp_customer = new InnoworkDirectoryCompany(
+                        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+                        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
                         $fields['customerid']
                         );
 
                     $tmp_customer_data = $tmp_customer->GetItem();
 
-                    $tmp_project = new XenProject(
-                        $gEnv['root']['db'],
-                        $gEnv['site']['db'],
+                    $tmp_project = new InnoworkProject(
+                        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+                        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
                         $fields['projectid']
                         );
 
@@ -876,7 +870,7 @@ if ( $row >= $from and $row <= $to )
   <args>
     <label type="encoded">'.urlencode(
         $locale_country->FormatShortArrayDate(
-            $GLOBALS['gEnv']['site']['db']->GetDateArrayFromTimestamp(
+            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                 $fields['emissiondate']
                 ) ) ).'</label>
   </args>
@@ -886,7 +880,7 @@ if ( $row >= $from and $row <= $to )
 
 <link><name>customer</name>
   <args>
-    <link type="encoded">'.urlencode( build_events_call_string(
+    <link type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString(
         $summaries['directorycompany']['adminpage'],
         array(
             array(
@@ -903,7 +897,7 @@ if ( $row >= $from and $row <= $to )
 
 <link><name>project</name>
   <args>
-    <link type="encoded">'.urlencode( build_events_call_string(
+    <link type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString(
         $summaries['project']['adminpage'],
         array(
             array(
@@ -959,13 +953,13 @@ if ( $row >= $from and $row <= $to )
 <amptoolbar row="'.$row.'" col="7"><name>tools</name>
   <args>
     <frame>false</frame>
-    <toolbars type="array">'.huixml_encode( array(
+    <toolbars type="array">'.WuiXml::encode( array(
         'main' => array(
             'show' => array(
                 'label' => $gLocale->GetStr( 'showinvoice.button' ),
                 'themeimage' => 'zoom',
                 'horiz' => 'true',
-                'action' => build_events_call_string( '', array( array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array( array(
                     'main',
                     'showinvoice',
                     array( 'id' => $id ) ) ) )
@@ -975,7 +969,7 @@ if ( $row >= $from and $row <= $to )
                 'themeimage' => 'fileprint',
                 'horiz' => 'true',
                 'target' => '_blank',
-                'action' => build_events_call_string( '', array( array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array( array(
                     'main',
                     'printinvoice',
                     array( 'id' => $id ) ) ) )
@@ -984,7 +978,7 @@ if ( $row >= $from and $row <= $to )
                 'label' => $gLocale->GetStr( 'sendinvoice.button' ),
                 'themeimage' => 'mail_send',
                 'horiz' => 'true',
-                'action' => build_events_call_string( '', array( array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array( array(
                     'main',
                     'sendinvoice',
                     array( 'id' => $id ) ) ) )
@@ -993,7 +987,7 @@ if ( $row >= $from and $row <= $to )
                 'label' => $gLocale->GetStr( 'invoicepayment.button' ),
                 'themeimage' => 'folder',
                 'horiz' => 'true',
-                'action' => build_events_call_string( '', array( array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array( array(
                     'main',
                     'invoicepayment',
                     array( 'id' => $id ) ) ) )
@@ -1004,7 +998,7 @@ if ( $row >= $from and $row <= $to )
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'removeinvoice.confirm' ),
-                'action' => build_events_call_string( '', array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -1105,17 +1099,17 @@ $gMain_disp->AddEvent(
     );
 function main_newinvoice( $eventData )
 {
-    global $gEnv, $gXml_def, $gLocale, $gPage_title;
+    global $gXml_def, $gLocale, $gPage_title;
 
     // Companies list
 
-    $xen_companies = new XenDirectoryCompany(
-        $gEnv['root']['db'],
-        $gEnv['site']['db']
+    $xen_companies = new InnoworkDirectoryCompany(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
     $search_results = $xen_companies->Search(
         '',
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         );
 
     $companies['0'] = $gLocale->GetStr( 'nocompany.label' );
@@ -1128,13 +1122,13 @@ function main_newinvoice( $eventData )
 
     // Projects list
 
-    $xen_projects = new XenProject(
-        $gEnv['root']['db'],
-        $gEnv['site']['db']
+    $xen_projects = new InnoworkProject(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
     $search_results = $xen_projects->Search(
         '',
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         );
 
     $projects['0'] = $gLocale->GetStr( 'noproject.label' );
@@ -1144,7 +1138,7 @@ function main_newinvoice( $eventData )
         $projects[$id] = $fields['name'];
     }
 
-    $payments_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
@@ -1160,9 +1154,9 @@ function main_newinvoice( $eventData )
 
     // Invoice number
 
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db']
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
 
     $invoice_number = (int)$xen_invoice->GetLastInvoiceNumber();
@@ -1171,7 +1165,7 @@ function main_newinvoice( $eventData )
     // Emission date
 
     $locale_country = new LocaleCountry(
-        $GLOBALS['gEnv']['user']['locale']['country']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
         );
 
     $curr_date = $locale_country->GetDateArrayFromSafeTimestamp(
@@ -1180,7 +1174,7 @@ function main_newinvoice( $eventData )
 
     // Defaults
 
-    $sets = new XenBilling_SettingsHandler();
+    $sets = new InnoworkBillingSettingsHandler();
 
     $gXml_def .=
 '<vertgroup><name>newinvoice</name>
@@ -1188,7 +1182,7 @@ function main_newinvoice( $eventData )
 
     <table><name>invoice</name>
       <args>
-        <headers type="array">'.huixml_encode(
+        <headers type="array">'.WuiXml::encode(
             array( '0' => array(
                 'label' => $gLocale->GetStr( 'newinvoice.label' )
                 ) ) ).'</headers>
@@ -1198,7 +1192,7 @@ function main_newinvoice( $eventData )
     <form row="0" col="0"><name>invoice</name>
       <args>
         <method>post</method>
-        <action type="encoded">'.urlencode( build_events_call_string( '', array(
+        <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
                     'main',
                     'showinvoice',
@@ -1223,7 +1217,7 @@ function main_newinvoice( $eventData )
             <combobox><name>customerid</name>
               <args>
                 <disp>action</disp>
-                <elements type="array">'.huixml_encode( $companies ).'</elements>
+                <elements type="array">'.WuiXml::encode( $companies ).'</elements>
               </args>
             </combobox>
 
@@ -1256,7 +1250,7 @@ function main_newinvoice( $eventData )
             <date><name>emissiondate</name>
               <args>
                 <disp>action</disp>
-                <value type="array">'.huixml_encode( $curr_date ).'</value>
+                <value type="array">'.WuiXml::encode( $curr_date ).'</value>
               </args>
             </date>
 
@@ -1274,7 +1268,7 @@ function main_newinvoice( $eventData )
             <combobox><name>paymentid</name>
               <args>
                 <disp>action</disp>
-                <elements type="array">'.huixml_encode( $payments ).'</elements>
+                <elements type="array">'.WuiXml::encode( $payments ).'</elements>
                 <default>'.$sets->GetDefaultPayment().'</default>
               </args>
             </combobox>
@@ -1307,7 +1301,7 @@ function main_newinvoice( $eventData )
             <frame>false</frame>
             <formsubmit>invoice</formsubmit>
             <label type="encoded">'.urlencode( $gLocale->GetStr( 'newinvoice.submit' ) ).'</label>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
                     'main',
                     'showinvoice',
@@ -1333,10 +1327,10 @@ $gMain_disp->AddEvent(
     );
 function main_showinvoice( $eventData )
 {
-    global $gEnv, $gXml_def, $gLocale, $gPage_title;
+    global $gXml_def, $gLocale, $gPage_title;
 
     $locale_country = new LocaleCountry(
-        $GLOBALS['gEnv']['site']['locale']['country']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry()
         );
 
     if ( isset( $GLOBALS['gEnv']['runtime']['xen-billing']['newinvoiceid'] ) )
@@ -1344,23 +1338,23 @@ function main_showinvoice( $eventData )
         $eventData['id'] = $GLOBALS['gEnv']['runtime']['xen-billing']['newinvoiceid'];
     }
 
-    $xen_invoice = new Xeninvoice(
-        $gEnv['root']['db'],
-        $gEnv['site']['db'],
+    $xen_invoice = new Innoworkinvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
-    $inv_data = $xen_invoice->GetItem( $GLOBALS['gEnv']['user']['serial'] );
+    $inv_data = $xen_invoice->GetItem( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId() );
     // Companies list
 
-    $xen_customer = new XenDirectoryCompany(
-        $gEnv['root']['db'],
-        $gEnv['site']['db'],
+    $xen_customer = new InnoworkDirectoryCompany(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $inv_data['customerid']
         );
     $search_results = $xen_customer->Search(
         '',
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         );
 
     $cust_data = $xen_customer->GetItem();
@@ -1375,13 +1369,13 @@ function main_showinvoice( $eventData )
 
     // Projects list
 
-    $xen_projects = new XenProject(
-        $gEnv['root']['db'],
-        $gEnv['site']['db']
+    $xen_projects = new InnoworkProject(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
     $search_results = $xen_projects->Search(
         array( 'customerid' => $inv_data['customerid'] ),
-        $gEnv['user']['serial']
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
         );
 
     $projects['0'] = $gLocale->GetStr( 'noproject.label' );
@@ -1393,11 +1387,11 @@ function main_showinvoice( $eventData )
 
 // Account managers
 
-$users_query = &$GLOBALS['gEnv']['root']['db']->Execute(
+$users_query = &InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Execute(
     'SELECT username,lname,fname '.
     'FROM users '.
     'WHERE siteid='.$GLOBALS['gEnv']['site']['serial'].' '.
-    'AND username<>'.$GLOBALS['gEnv']['root']['db']->Format_Text( $GLOBALS['gEnv']['site']['id'] ).' '.
+    'AND username<>'.InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Format_Text( $GLOBALS['gEnv']['site']['id'] ).' '.
     'ORDER BY lname,fname'
     );
 
@@ -1413,7 +1407,7 @@ $users_query->Free();
 
     // Payments
 
-    $payments_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
@@ -1443,7 +1437,7 @@ $users_query->Free();
 
     <table><name>invoice</name>
       <args>
-        <headers type="array">'.huixml_encode(
+        <headers type="array">'.WuiXml::encode(
             array( '0' => array(
                 'label' => $gLocale->GetStr( 'showinvoice.label' )
                 ) ) ).'</headers>
@@ -1453,7 +1447,7 @@ $users_query->Free();
     <form row="0" col="0"><name>invoice</name>
       <args>
         <method>post</method>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'showinvoice',
@@ -1478,7 +1472,7 @@ $users_query->Free();
             <combobox><name>customerid</name>
               <args>
                 <disp>action</disp>
-                <elements type="array">'.huixml_encode( $companies ).'</elements>
+                <elements type="array">'.WuiXml::encode( $companies ).'</elements>
                 <default>'.$inv_data['customerid'].'</default>
               </args>
             </combobox>
@@ -1491,7 +1485,7 @@ $users_query->Free();
             <combobox><name>projectid</name>
               <args>
                 <disp>action</disp>
-                <elements type="array">'.huixml_encode( $projects ).'</elements>
+                <elements type="array">'.WuiXml::encode( $projects ).'</elements>
                 <default>'.$inv_data['projectid'].'</default>
               </args>
             </combobox>
@@ -1510,7 +1504,7 @@ $users_query->Free();
             <combobox><name>accountmanager</name>
               <args>
                 <disp>action</disp>
-                <elements type="array">'.huixml_encode( $gUsers ).'</elements>
+                <elements type="array">'.WuiXml::encode( $gUsers ).'</elements>
                 <default>'.$inv_data['accountmanager'].'</default>
               </args>
             </combobox>
@@ -1643,8 +1637,8 @@ $users_query->Free();
             <date><name>emissiondate</name>
               <args>
                 <disp>action</disp>
-                <value type="array">'.huixml_encode(
-                    $GLOBALS['gEnv']['site']['db']->GetDateArrayFromTimestamp(
+                <value type="array">'.WuiXml::encode(
+                    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                         $inv_data['emissiondate'] ) ).'</value>
                 <type>date</type>
               </args>
@@ -1664,7 +1658,7 @@ $users_query->Free();
             <combobox><name>paymentid</name>
               <args>
                 <disp>action</disp>
-                <elements type="array">'.huixml_encode( $payments ).'</elements>
+                <elements type="array">'.WuiXml::encode( $payments ).'</elements>
                 <default>'.$inv_data['paymentid'].'</default>
               </args>
             </combobox>
@@ -1677,8 +1671,8 @@ $users_query->Free();
             <date><name>duedate</name>
               <args>
                 <disp>action</disp>
-                <value type="array">'.huixml_encode(
-                    $GLOBALS['gEnv']['site']['db']->GetDateArrayFromTimestamp(
+                <value type="array">'.WuiXml::encode(
+                    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                         $inv_data['duedate'] ) ).'</value>
                 <type>date</type>
               </args>
@@ -1763,7 +1757,7 @@ $users_query->Free();
             <themeimage>filesave</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'showinvoice',
@@ -1784,7 +1778,7 @@ $users_query->Free();
             <themeimage>fileclose</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default'
@@ -1800,7 +1794,7 @@ $users_query->Free();
             <horiz>true</horiz>
             <frame>false</frame>
             <target>_blank</target>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'printinvoice',
@@ -1816,7 +1810,7 @@ $users_query->Free();
             <themeimage>mail_send</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'sendinvoice',
@@ -1834,7 +1828,7 @@ $users_query->Free();
             <frame>false</frame>
             <needconfirm>true</needconfirm>
             <confirmmessage type="encoded">'.urlencode( $gLocale->GetStr( 'removeinvoice.confirm' ) ).'</confirmmessage>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default'
@@ -1858,7 +1852,7 @@ $users_query->Free();
           <args>
             <method>post</method>
             <action type="encoded">'.urlencode(
-                build_events_call_string( '', array(
+                WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'showinvoice',
@@ -1877,13 +1871,13 @@ $users_query->Free();
 
             <table><name>rows</name>
               <args>
-                <headers type="array">'.huixml_encode( $rows_headers ).'</headers>
+                <headers type="array">'.WuiXml::encode( $rows_headers ).'</headers>
               </args>
               <children>';
 
 	$row_list = $xen_invoice->GetRows();
 	
-    $vats_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_vat_codes '.
         'ORDER BY vat'
@@ -1935,7 +1929,7 @@ $users_query->Free();
 <combobox row="'.$row.'" col="4"><name>vatid'.$row_data['id'].'</name>
   <args>
     <disp>action</disp>
-    <elements type="array">'.huixml_encode( $vats ).'</elements>
+    <elements type="array">'.WuiXml::encode( $vats ).'</elements>
     <default>'.$row_data['vatid'].'</default>
   </args>
 </combobox>
@@ -1947,14 +1941,14 @@ $users_query->Free();
 <amptoolbar row="'.$row.'" col="6"><name>tools</name>
   <args>
     <frame>false</frame>
-    <toolbars type="array">'.huixml_encode( array(
+    <toolbars type="array">'.WuiXml::encode( array(
         'main' => array(
             'update' => array(
                 'label' => $gLocale->GetStr( 'update_row.button' ),
                 'themeimage' => 'filesave',
                 'horiz' => 'true',
                 'formsubmit' => 'rows',
-                'action' => build_events_call_string( '', array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'showinvoice',
@@ -1974,7 +1968,7 @@ $users_query->Free();
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'remove_row.confirm' ),
-                'action' => build_events_call_string( '', array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'showinvoice',
@@ -2004,7 +1998,7 @@ $users_query->Free();
 
     unset( $rows_headers );
 
-    $sets = new XenBilling_SettingsHandler();
+    $sets = new InnoworkBillingSettingsHandler();
     $rows_headers[0]['label'] = $gLocale->GetStr( 'row_description.header' );
     $rows_headers[1]['label'] = $gLocale->GetStr( 'row_amount.header' );
     $rows_headers[2]['label'] = $gLocale->GetStr( 'row_quantiy.header' );
@@ -2018,7 +2012,7 @@ $users_query->Free();
           <args>
             <method>post</method>
             <action type="encoded">'.urlencode(
-                build_events_call_string( '', array(
+                WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'showinvoice',
@@ -2037,7 +2031,7 @@ $users_query->Free();
   <children>
             <table><name>rows</name>
               <args>
-                <headers type="array">'.huixml_encode( $rows_headers ).'</headers>
+                <headers type="array">'.WuiXml::encode( $rows_headers ).'</headers>
               </args>
               <children>
 <string row="0" col="0"><name>description</name>
@@ -2067,21 +2061,21 @@ $users_query->Free();
 <combobox row="0" col="4"><name>vatid</name>
   <args>
     <disp>action</disp>
-    <elements type="array">'.huixml_encode( $vats ).'</elements>
+    <elements type="array">'.WuiXml::encode( $vats ).'</elements>
     <default>'.$sets->GetDefaultVat().'</default>
   </args>
 </combobox>
 <amptoolbar row="0" col="5"><name>tools</name>
   <args>
     <frame>false</frame>
-    <toolbars type="array">'.huixml_encode( array(
+    <toolbars type="array">'.WuiXml::encode( array(
         'main' => array(
             'add' => array(
                 'label' => $gLocale->GetStr( 'add_row.button' ),
                 'themeimage' => 'edit_add',
                 'horiz' => 'true',
                 'formsubmit' => 'addrow',
-                'action' => build_events_call_string( '', array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'showinvoice',
@@ -2124,9 +2118,9 @@ function main_invoicepayment(
 {
     global $gLocale, $gXml_def;
 
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
@@ -2138,7 +2132,7 @@ function main_invoicepayment(
 
     <form><name>paidamount</name>
       <args>
-        <action type="encoded">'.urlencode( build_events_call_string( '', array(
+        <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -2196,7 +2190,7 @@ function main_invoicepayment(
             <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -2227,9 +2221,9 @@ function main_sendinvoice(
 {
     global $gLocale, $gXml_def;
 
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
@@ -2237,9 +2231,9 @@ function main_sendinvoice(
 
     OpenLibrary( 'xendirectory.library' );
 
-    $xen_customer = new XenDirectoryCompany(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_customer = new InnoworkDirectoryCompany(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $inv_data['customerid']
         );
 
@@ -2251,7 +2245,7 @@ function main_sendinvoice(
 
     <form><name>email</name>
       <args>
-        <action type="encoded">'.urlencode( build_events_call_string( '', array(
+        <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -2295,7 +2289,7 @@ function main_sendinvoice(
             <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -2324,9 +2318,9 @@ function main_printinvoice(
     $eventData
     )
 {
-    $xen_invoice = new XenInvoice(
-        $GLOBALS['gEnv']['root']['db'],
-        $GLOBALS['gEnv']['site']['db'],
+    $xen_invoice = new InnoworkInvoice(
+        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
 
         $eventData['id']
         );
@@ -2340,28 +2334,28 @@ $gMain_disp->Dispatch();
 
 // ----- Rendering -----
 //
-$gHui->AddChild( new HuiAmpPage( 'page', array(
+$gWui->AddChild( new WuiInnomaticPage( 'page', array(
     'pagetitle' => $gPage_title,
     'icon' => 'document',
     'toolbars' => array(
-        new HuiAmpToolbar(
+        new WuiInnomaticToolbar(
             'main',
             array(
                 'toolbars' => $gToolbars
                 ) ),
-        new HuiAmpToolBar(
+        new WuiInnomaticToolbar(
             'core',
             array(
                 'toolbars' => $gCore_toolbars
                 ) ),
             ),
-    'maincontent' => new HuiXml(
+    'maincontent' => new WuiXml(
         'page', array(
             'definition' => "<?xml version='1.0' encoding='ISO-8859-1'?>\n".$gXml_def
             ) ),
     'status' => $gPage_status
     ) ) );
 
-$gHui->Render();
+$gWui->Render();
 
 ?>

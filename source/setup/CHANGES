@@ -20,12 +20,12 @@ NEW FEATURES:
 
 CHANGES:
 - Now changes are logged. (Alex Pagnoni)
-- Now XenDirectory 1.2 is required. (Alex Pagnoni)
+- Now InnoworkDirectory 1.2 is required. (Alex Pagnoni)
 - Only companies of type customer or customer/supplier are listed. (Alex Pagnoni)
 
 FIXES:
 - The item cache now gets flushed when updating the paidamount field through
-  XenInvoice->SetPaidAmount(). (Alex Pagnoni)
+  InnoworkInvoice->SetPaidAmount(). (Alex Pagnoni)
 - Fixed missing dispatcher descriptor in invoice payment panel. (Alex Pagnoni)
 
 
@@ -40,7 +40,7 @@ NEW FEATURES:
 - Added "number" to the searchable keys. (Alex Pagnoni)
 
 CHANGES:
-- Adapted to Xen Core 2.1 organization. (Alex Pagnoni)
+- Adapted to Innowork Core 2.1 organization. (Alex Pagnoni)
 
 FIXES:
 - Fixed item type definition in xenbilling.library. (Alex Pagnoni)

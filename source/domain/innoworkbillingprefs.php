@@ -1,42 +1,34 @@
 <?php
-/*
- *   Copyright (C) 2003-2004 Solarix
- *
- */
 
-// ----- Initialization -----
-//
-require( 'auth.php' );
+require_once('innowork/billing/InnoworkInvoice.php');
 
 OpenLibrary( 'xencore.library' );
-OpenLibrary( 'xenbilling.library' );
 OpenLibrary( 'hui.library' );
-OpenLibrary( 'locale.library' );
+require_once('locale/LocaleCatalog.php');
+require_once('locale/LocaleCountry.php');
 
-$gXen_core = new XenCore(
-    $gEnv['root']['db'],
-    $gEnv['site']['db']
+$gInnowork_core = InnoworkCore::instance('innoworkcore', 
+    InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
+    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
     );
 
 $gLocale = new Locale(
-    'xenbilling_site_prefs',
-    $gEnv['user']['locale']['language']
+    'innoworkbilling_site_prefs',
+    InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getLanguage()
     );
 
-$gHui = new Hui( $gEnv['root']['db'] );
-$gHui->LoadWidget( 'xml' );
-$gHui->LoadWidget( 'amppage' );
-$gHui->LoadWidget( 'amptoolbar' );
+$gWui = Wui::instance('wui', InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess());
+$gWui->loadAllWidgets();
 
 $gXml_def = $gPage_status = '';
 $gPage_title = $gLocale->GetStr( 'preferences.title' );
-$gCore_toolbars = $gXen_core->GetMainToolBar();
+$gCore_toolbars = $gInnowork_core->GetMainToolBar();
 $gToolbars['invoices'] = array(
     'invoices' => array(
         'label' => $gLocale->GetStr( 'invoices.toolbar' ),
         'themeimage' => 'view_icon',
         'horiz' => 'true',
-        'action' => build_events_call_string( 'xenbilling.php', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( 'xenbilling.php', array( array(
             'main',
             'default',
             '' ) ) )
@@ -48,7 +40,7 @@ $gToolbars['vats'] = array(
         'label' => $gLocale->GetStr( 'vats.toolbar' ),
         'themeimage' => 'view_icon',
         'horiz' => 'true',
-        'action' => build_events_call_string( '', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'main',
             'default',
             '' ) ) )
@@ -57,7 +49,7 @@ $gToolbars['vats'] = array(
         'label' => $gLocale->GetStr( 'newvat.toolbar' ),
         'themeimage' => 'filenew',
         'horiz' => 'true',
-        'action' => build_events_call_string( '', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'main',
             'newvat',
             '' ) ) )
@@ -68,7 +60,7 @@ $gToolbars['payments'] = array(
         'label' => $gLocale->GetStr( 'payments.toolbar' ),
         'themeimage' => 'view_icon',
         'horiz' => 'true',
-        'action' => build_events_call_string( '', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'main',
             'payments',
             '' ) ) )
@@ -77,7 +69,7 @@ $gToolbars['payments'] = array(
         'label' => $gLocale->GetStr( 'newpayment.toolbar' ),
         'themeimage' => 'filenew',
         'horiz' => 'true',
-        'action' => build_events_call_string( '', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'main',
             'newpayment',
             '' ) ) )
@@ -88,7 +80,7 @@ $gToolbars['settings'] = array(
         'label' => $gLocale->GetStr( 'settings.toolbar' ),
         'themeimage' => 'configure',
         'horiz' => 'true',
-        'action' => build_events_call_string( '', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'main',
             'settings',
             '' ) ) )
@@ -97,7 +89,7 @@ $gToolbars['settings'] = array(
 
 // ----- Action dispatcher -----
 //
-$gAction_disp = new HuiDispatcher( 'action' );
+$gAction_disp = new WuiDispatcher( 'action' );
 
 // Vats
 
@@ -111,7 +103,7 @@ function action_newvat(
 {
     global $gPage_status, $gLocale;
 
-    $xen_vat = new XenBilling_Vat();
+    $xen_vat = new InnoworkBillingVat();
     if ( $xen_vat->Create(
         $eventData['vat'],
         $eventData['percentual']
@@ -131,7 +123,7 @@ function action_editvat(
 {
     global $gPage_status, $gLocale;
 
-    $xen_vat = new XenBilling_Vat(
+    $xen_vat = new InnoworkBillingVat(
         $eventData['id']
         );
 
@@ -151,7 +143,7 @@ function action_removevat(
 {
     global $gPage_status, $gLocale;
 
-    $xen_vat = new XenBilling_Vat(
+    $xen_vat = new InnoworkBillingVat(
         $eventData['id']
         );
     if ( $xen_vat->Remove() )
@@ -172,7 +164,7 @@ function action_newpayment(
 {
     global $gPage_status, $gLocale;
 
-    $xen_payment = new XenBilling_Payment();
+    $xen_payment = new InnoworkBillingPayment();
     if ( $xen_payment->Create(
         $eventData['description'],
         $eventData['days'],
@@ -193,7 +185,7 @@ function action_editpayment(
 {
     global $gPage_status, $gLocale;
 
-    $xen_payment = new XenBilling_Payment(
+    $xen_payment = new InnoworkBillingPayment(
         $eventData['id']
         );
 
@@ -214,7 +206,7 @@ function action_removepayment(
 {
     global $gPage_status, $gLocale;
 
-    $xen_payment = new XenBilling_Payment(
+    $xen_payment = new InnoworkBillingPayment(
         $eventData['id']
         );
     if ( $xen_payment->Remove() )
@@ -233,7 +225,7 @@ function action_setgeneral(
 {
     global $gLocale, $gPage_status;
 
-    $sets = new XenBilling_SettingsHandler();
+    $sets = new InnoworkBillingSettingsHandler();
     $sets->SetEmail( $eventData['email'] );
     $sets->SetSmtpServer( $eventData['smtpserver'] );
 
@@ -250,7 +242,7 @@ function action_setdefaults(
 {
     global $gLocale, $gPage_status;
 
-    $sets = new XenBilling_SettingsHandler();
+    $sets = new InnoworkBillingSettingsHandler();
     $sets->SetDefaultPayment( $eventData['paymentid'] );
     $sets->SetDefaultVat( $eventData['vatid'] );
 
@@ -267,7 +259,7 @@ function action_settemplates(
 {
     global $gLocale, $gPage_status;
 
-    $sets = new XenBilling_SettingsHandler();
+    $sets = new InnoworkBillingSettingsHandler();
 
     if ( is_uploaded_file( $eventData['invoice_template']['tmp_name'] ) )
     {
@@ -286,7 +278,7 @@ $gAction_disp->Dispatch();
 
 // ----- Main dispatcher -----
 //
-$gMain_disp = new HuiDispatcher( 'main' );
+$gMain_disp = new WuiDispatcher( 'main' );
 
 // Vat
 
@@ -297,13 +289,13 @@ function main_default( $eventData )
 {
     global $gLocale, $gPage_title, $gXml_def, $gPage_status;
 
-    $vats_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_vat_codes '.
         'ORDER BY vat'
         );
 
-    if ( $vats_query->NumRows() )
+    if ( $vats_query->getNumberRows() )
     {
         $headers[0]['label'] = $gLocale->GetStr( 'vat.header' );
         $headers[1]['label'] = $gLocale->GetStr( 'percentual.header' );
@@ -311,7 +303,7 @@ function main_default( $eventData )
         $gXml_def =
 '<table>
   <args>
-    <headers type="array">'.huixml_encode( $headers ).'</headers>
+    <headers type="array">'.WuiXml::encode( $headers ).'</headers>
   </args>
   <children>';
 
@@ -333,13 +325,13 @@ function main_default( $eventData )
 <amptoolbar row="'.$row.'" col="2">
   <args>
     <frame>false</frame>
-    <toolbars type="array">'.huixml_encode( array(
+    <toolbars type="array">'.WuiXml::encode( array(
         'main' => array(
             'edit' => array(
                 'label' => $gLocale->GetStr( 'editvat.button' ),
                 'themeimage' => 'pencil',
                 'horiz' => 'true',
-                'action' => build_events_call_string( '', array( array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array( array(
                     'main',
                     'editvat',
                     array( 'id' => $vats_query->Fields( 'id' ) ) ) ) )
@@ -350,7 +342,7 @@ function main_default( $eventData )
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'removevat.confirm' ),
-                'action' => build_events_call_string( '', array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -393,7 +385,7 @@ function main_newvat(
 
     <form><name>newvat</name>
       <args>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -449,7 +441,7 @@ function main_newvat(
             <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -479,7 +471,7 @@ function main_editvat(
 {
     global $gLocale, $gXml_def;
 
-    $vat_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $vat_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_vat_codes '.
         'WHERE id='.$eventData['id']
@@ -491,7 +483,7 @@ function main_editvat(
 
     <form><name>editvat</name>
       <args>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -549,7 +541,7 @@ function main_editvat(
             <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'default',
@@ -578,13 +570,13 @@ function main_payments( $eventData )
 {
     global $gLocale, $gPage_title, $gXml_def, $gPage_status;
 
-    $payments_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
         );
 
-    if ( $payments_query->NumRows() )
+    if ( $payments_query->getNumberRows() )
     {
         $headers[0]['label'] = $gLocale->GetStr( 'payment.header' );
         $headers[1]['label'] = $gLocale->GetStr( 'days.header' );
@@ -593,7 +585,7 @@ function main_payments( $eventData )
         $gXml_def =
 '<table>
   <args>
-    <headers type="array">'.huixml_encode( $headers ).'</headers>
+    <headers type="array">'.WuiXml::encode( $headers ).'</headers>
   </args>
   <children>';
 
@@ -615,7 +607,7 @@ function main_payments( $eventData )
 <label row="'.$row.'" col="2">
   <args>
     <label type="encoded">'.urlencode(
-        $payments_query->Fields( 'monthend' ) == $GLOBALS['gEnv']['site']['db']->fmttrue ?
+        $payments_query->Fields( 'monthend' ) == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue ?
         $gLocale->GetStr( 'yes.label' ) :
         $gLocale->GetStr( 'no.label' )
         ).'</label>
@@ -624,13 +616,13 @@ function main_payments( $eventData )
 <amptoolbar row="'.$row.'" col="3">
   <args>
     <frame>false</frame>
-    <toolbars type="array">'.huixml_encode( array(
+    <toolbars type="array">'.WuiXml::encode( array(
         'main' => array(
             'edit' => array(
                 'label' => $gLocale->GetStr( 'editpayment.button' ),
                 'themeimage' => 'pencil',
                 'horiz' => 'true',
-                'action' => build_events_call_string( '', array( array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array( array(
                     'main',
                     'editpayment',
                     array( 'id' => $payments_query->Fields( 'id' ) ) ) ) )
@@ -641,7 +633,7 @@ function main_payments( $eventData )
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'removepayment.confirm' ),
-                'action' => build_events_call_string( '', array(
+                'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'payments',
@@ -684,7 +676,7 @@ function main_newpayment(
 
     <form><name>newpayment</name>
       <args>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'payments',
@@ -752,7 +744,7 @@ function main_newpayment(
             <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'payments',
@@ -782,7 +774,7 @@ function main_editpayment(
 {
     global $gLocale, $gXml_def;
 
-    $payment_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $payment_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'WHERE id='.$eventData['id']
@@ -794,7 +786,7 @@ function main_editpayment(
 
     <form><name>editpayment</name>
       <args>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'payments',
@@ -849,7 +841,7 @@ function main_editpayment(
               <args>
                 <disp>action</disp>
                 <checked>'.(
-                    $payment_query->Fields( 'monthend' ) == $GLOBALS['gEnv']['site']['db']->fmttrue ?
+                    $payment_query->Fields( 'monthend' ) == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue ?
                     'true':
                     'false'
                     ).'</checked>
@@ -869,7 +861,7 @@ function main_editpayment(
             <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
-            <action type="encoded">'.urlencode( build_events_call_string( '', array(
+            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
                         'main',
                         'payments',
@@ -891,7 +883,7 @@ function main_editpayment(
 
 function settings_tab_action_builder( $tab )
 {
-    return build_events_call_string( '', array( array(
+    return WuiEventsCall::buildEventsCallString( '', array( array(
             'main',
             'settings',
             array(
@@ -915,9 +907,9 @@ function main_settings(
     $tabs[1]['label'] = $gLocale->GetStr( 'defaults_settings.tab' );
     $tabs[2]['label'] = $gLocale->GetStr( 'templates_settings.tab' );
 
-    $sets = new XenBilling_SettingsHandler();
+    $sets = new InnoworkBillingSettingsHandler();
 
-    $vats_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT id,vat '.
         'FROM innowork_billing_vat_codes '.
         'ORDER BY vat'
@@ -930,7 +922,7 @@ function main_settings(
         $vats_query->MoveNext();
     }
 
-    $payments_query = &$GLOBALS['gEnv']['site']['db']->Execute(
+    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT id,description '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
@@ -956,7 +948,7 @@ function main_settings(
 
     <tab><name>settings</name>
       <args>
-        <tabs type="array">'.huixml_encode( $tabs ).'</tabs>
+        <tabs type="array">'.WuiXml::encode( $tabs ).'</tabs>
         <activetab>'.( isset( $eventData['tabpage'] ) ? $eventData['tabpage'] : '' ).'</activetab>
         <tabactionfunction>settings_tab_action_builder</tabactionfunction>
       </args>
@@ -967,7 +959,7 @@ function main_settings(
 
             <form><name>settings</name>
               <args>
-                <action type="encoded">'.urlencode( build_events_call_string( '', array(
+                <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                         array(
                             'main',
                             'settings',
@@ -1025,7 +1017,7 @@ function main_settings(
                 <themeimage>buttonok</themeimage>
                 <horiz>true</horiz>
                 <frame>false</frame>
-                <action type="encoded">'.urlencode( build_events_call_string( '', array(
+                <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                         array(
                             'main',
                             'settings',
@@ -1049,7 +1041,7 @@ function main_settings(
 
             <form><name>settings</name>
               <args>
-                <action type="encoded">'.urlencode( build_events_call_string( '', array(
+                <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                         array(
                             'main',
                             'settings',
@@ -1075,7 +1067,7 @@ function main_settings(
                     <combobox row="0" col="1"><name>vatid</name>
                       <args>
                         <disp>action</disp>
-                        <elements type="array">'.huixml_encode( $vats ).'</elements>
+                        <elements type="array">'.WuiXml::encode( $vats ).'</elements>
                         <default>'.$sets->GetDefaultVat().'</default>
                       </args>
                     </combobox>
@@ -1089,7 +1081,7 @@ function main_settings(
                     <combobox row="1" col="1"><name>paymentid</name>
                       <args>
                         <disp>action</disp>
-                        <elements type="array">'.huixml_encode( $payments ).'</elements>
+                        <elements type="array">'.WuiXml::encode( $payments ).'</elements>
                         <default>'.$sets->GetDefaultPayment().'</default>
                       </args>
                     </combobox>
@@ -1107,7 +1099,7 @@ function main_settings(
                 <themeimage>buttonok</themeimage>
                 <horiz>true</horiz>
                 <frame>false</frame>
-                <action type="encoded">'.urlencode( build_events_call_string( '', array(
+                <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                         array(
                             'main',
                             'settings',
@@ -1131,7 +1123,7 @@ function main_settings(
 
             <form><name>settings</name>
               <args>
-                <action type="encoded">'.urlencode( build_events_call_string( '', array(
+                <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                         array(
                             'main',
                             'settings',
@@ -1173,7 +1165,7 @@ function main_settings(
                 <themeimage>buttonok</themeimage>
                 <horiz>true</horiz>
                 <frame>false</frame>
-                <action type="encoded">'.urlencode( build_events_call_string( '', array(
+                <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                         array(
                             'main',
                             'settings',
@@ -1205,22 +1197,22 @@ $gMain_disp->Dispatch();
 
 // ----- Rendering -----
 //
-$gHui->AddChild( new HuiAmpPage( 'page', array(
+$gHui->AddChild( new WuiAmpPage( 'page', array(
     'pagetitle' => $gPage_title,
     'icon' => 'document',
     'toolbars' => array(
-        new HuiAmpToolbar(
+        new WuiAmpToolbar(
             'main',
             array(
                 'toolbars' => $gToolbars
                 ) ),
-        new HuiAmpToolBar(
+        new WuiAmpToolBar(
             'core',
             array(
                 'toolbars' => $gCore_toolbars
                 ) ),
             ),
-    'maincontent' => new HuiXml(
+    'maincontent' => new WuiXml(
         'page', array(
             'definition' => $gXml_def
             ) ),
