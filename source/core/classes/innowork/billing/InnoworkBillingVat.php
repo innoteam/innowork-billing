@@ -40,7 +40,7 @@ class InnoworkBillingVat
 
 		if ( !$this->mId )
 		{
-			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSeqValue( 'innowork_billing_vat_codes_id_seq' );
+			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_vat_codes_id_seq' );
 
 			if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'INSERT INTO innowork_billing_vat_codes VALUES ('.

@@ -43,7 +43,7 @@ class InnoworkBillingPayment
 
 		if ( !$this->mId )
 		{
-			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSeqValue( 'innowork_billing_payments_id_seq' );
+			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_payments_id_seq' );
 			$days = (int)$days;
 			if ( !strlen( $days ) ) $days = 0;
 
