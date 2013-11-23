@@ -38,7 +38,7 @@ class InnoworkBillingSettingsHandler
 	{
 		$result = '';
 
-		$file_name = SITESTUFF_PATH.$GLOBALS['gEnv']['site']['id'].'/conf/innoworkbilling_invoice.html';
+		$file_name = SITESTUFF_PATH.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDomainId().'/conf/innoworkbilling_invoice.html';
 
 		if (
 		file_exists( $file_name )
@@ -51,11 +51,11 @@ class InnoworkBillingSettingsHandler
 		}
 		else
 		{
-			require_once('locale/LocaleCatalog.php');
-require_once('locale/LocaleCountry.php');
+			require_once('innomatic/locale/LocaleCatalog.php');
+			require_once('innomatic/locale/LocaleCountry.php');
 
-			$locale = new Locale(
-					'innoworkbilling_misc',
+			$locale = new LocaleCatalog(
+					'innowork-billing::misc',
 					InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getLanguage()
 			);
 
@@ -71,7 +71,7 @@ require_once('locale/LocaleCountry.php');
 	{
 		$result = false;
 
-		$file_name = SITESTUFF_PATH.$GLOBALS['gEnv']['site']['id'].'/conf/innoworkbilling_invoice.html';
+		$file_name = SITESTUFF_PATH.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDomainId().'/conf/innoworkbilling_invoice.html';
 
 		if ( $fp = fopen( $file_name, 'w' ) )
 		{

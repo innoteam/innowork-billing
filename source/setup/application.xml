@@ -49,8 +49,9 @@
 		<catalog name="innowork-billing" />
 		
 		<class name="innowork/billing/InnoworkInvoice.php" />
+		<class name="innowork/billing/InnoworkBillingPayment.php" />
 		<class name="innowork/billing/InnoworkBillingSettingsHandler.php" />
-		<class name="innowork/billing/InnoworkBillingSettingsHandler.php" />
+		<class name="innowork/billing/InnoworkBillingVat.php" />
 		
 	    <domaintable
 	        name="innowork_billing_invoices"

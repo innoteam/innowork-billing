@@ -23,8 +23,8 @@ class InnoworkBillingVat
 			if ( $check_query->getNumberRows() )
 			{
 				$this->mId = $id;
-				$this->mDescription = $check_query->Fields( 'vat' );
-				$this->mPercentual = $check_query->Fields( 'percentual' );
+				$this->mDescription = $check_query->getFields( 'vat' );
+				$this->mPercentual = $check_query->getFields( 'percentual' );
 
 				$check_query->Free();
 			}
@@ -40,13 +40,13 @@ class InnoworkBillingVat
 
 		if ( !$this->mId )
 		{
-			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->NextSeqValue( 'innowork_billing_vat_codes_id_seq' );
+			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSeqValue( 'innowork_billing_vat_codes_id_seq' );
 
 			if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'INSERT INTO innowork_billing_vat_codes VALUES ('.
 					$id.','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $description ).','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $percentual ).')' ) )
+					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
+					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $percentual ).')' ) )
 			{
 				$this->mId = $id;
 				$this->mDescription = $description;
@@ -75,7 +75,7 @@ class InnoworkBillingVat
 		and
 		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_vat_codes '.
-				'SET vat='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $description ).' '.
+				'SET vat='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).' '.
 				'WHERE id='.$this->mId
 		)
 		)
@@ -104,7 +104,7 @@ class InnoworkBillingVat
 		and
 		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_vat_codes '.
-				'SET percentual='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $percentual ).' '.
+				'SET percentual='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $percentual ).' '.
 				'WHERE id='.$this->mId
 		)
 		)

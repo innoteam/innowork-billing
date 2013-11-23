@@ -9,17 +9,19 @@ require_once 'innomatic/wui/Wui.php';
 require_once('innomatic/locale/LocaleCatalog.php');
 require_once('innomatic/locale/LocaleCountry.php');
 
+global $gLocale, $gPage_title, $gXml_def, $gPage_status, $gInnowork_core;
+
 $gInnowork_core = InnoworkCore::instance('innoworkcore', 
     InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
     InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
     );
 
 $gLocale = new LocaleCatalog(
-    'innoworkbilling_site_main',
+    'innowork-billing::main',
     InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getLanguage()
     );
 
-$gWui = Wui::instance('wui', InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess());
+$gWui = Wui::instance('wui');
 $gWui->loadAllWidgets();
 
 $gXml_def = $gPage_status = '';
@@ -30,8 +32,8 @@ $gToolbars['invoices'] = array(
         'label' => $gLocale->GetStr( 'invoices.toolbar' ),
         'themeimage' => 'view_icon',
         'horiz' => 'true',
-        'action' => WuiEventsCall::buildEventsCallString( 'xenbilling.php', array( array(
-            'main',
+        'action' => WuiEventsCall::buildEventsCallString( '', array( array(
+            'view',
             'default',
             '' ) ) )
         ),
@@ -39,8 +41,8 @@ $gToolbars['invoices'] = array(
         'label' => $gLocale->GetStr( 'newinvoice.toolbar' ),
         'themeimage' => 'filenew',
         'horiz' => 'true',
-        'action' => WuiEventsCall::buildEventsCallString( 'xenbilling.php', array( array(
-            'main',
+        'action' => WuiEventsCall::buildEventsCallString( '', array( array(
+            'view',
             'newinvoice',
             '' ) ) )
         )
@@ -51,8 +53,8 @@ $gToolbars['prefs'] = array(
         'label' => $gLocale->GetStr( 'preferences.toolbar' ),
         'themeimage' => 'configure',
         'horiz' => 'true',
-        'action' => WuiEventsCall::buildEventsCallString( 'xenbillingprefs.php', array( array(
-            'main',
+        'action' => WuiEventsCall::buildEventsCallString( 'innoworkbillingprefs', array( array(
+            'view',
             'default',
             '' ) ) )
         )
@@ -77,7 +79,7 @@ function action_newinvoice( $eventData )
 
     if ( $eventData['customerid'] )
     {
-        $customer = new InnoworkDirectoryCompany(
+        $customer = new InnoworkCompany(
             InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
             InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
             $eventData['customerid']
@@ -230,7 +232,7 @@ function action_editrows(
 
     while ( !$rows_query->eof )
     {
-        $row_id = $rows_query->Fields( 'id' );
+        $row_id = $rows_query->getFields( 'id' );
 
         $xen_invoice->EditRow(
             $row_id,
@@ -312,12 +314,12 @@ $gAction_disp->Dispatch();
 
 // ----- Main dispatcher -----
 //
-$gMain_disp = new WuiDispatcher( 'main' );
+$gMain_disp = new WuiDispatcher( 'view' );
 
 function invoices_list_action_builder( $pageNumber )
 {
     return WuiEventsCall::buildEventsCallString( '', array( array(
-            'main',
+            'view',
             'default',
             array( 'pagenumber' => $pageNumber )
         ) ) );
@@ -337,12 +339,9 @@ function main_default( $eventData )
     global $gLocale, $gPage_title, $gXml_def, $gPage_status, $gInnowork_core;
 
 // Account managers
-
-$users_query = &InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Execute(
+$users_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
     'SELECT username,lname,fname '.
-    'FROM users '.
-    'WHERE siteid='.$GLOBALS['gEnv']['site']['serial'].' '.
-    'AND username<>'.InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Format_Text( $GLOBALS['gEnv']['site']['id'] ).' '.
+    'FROM domain_users '.
     'ORDER BY lname,fname'
     );
 
@@ -350,7 +349,7 @@ $gUsers[0] = $gLocale->GetStr( 'all_account_managers.label' );
 
 while ( !$users_query->eof )
 {
-    $gUsers[$users_query->Fields( 'username' )] = $users_query->Fields( 'lname' ).' '.$users_query->Fields( 'fname' );
+    $gUsers[$users_query->getFields( 'username' )] = $users_query->getFields( 'lname' ).' '.$users_query->getFields( 'fname' );
     $users_query->MoveNext();
 }
 
@@ -536,42 +535,42 @@ $users_query->Free();
     $headers[0]['label'] = $gLocale->GetStr( 'number.header' );
     $headers[0]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
-                    'main',
+                    'view',
                     'default',
                     array( 'sortby' => '0' )
                     ) ) );
     $headers[1]['label'] = $gLocale->GetStr( 'emissiondate.header' );
     $headers[1]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
-                    'main',
+                    'view',
                     'default',
                     array( 'sortby' => '1' )
                     ) ) );
     $headers[2]['label'] = $gLocale->GetStr( 'customer.header' );
     $headers[2]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
-                    'main',
+                    'view',
                     'default',
                     array( 'sortby' => '2' )
                     ) ) );
     $headers[3]['label'] = $gLocale->GetStr( 'total.header' );
     $headers[3]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
-                    'main',
+                    'view',
                     'default',
                     array( 'sortby' => '3' )
                     ) ) );
     $headers[4]['label'] = $gLocale->GetStr( 'duedate.header' );
     $headers[4]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
-                    'main',
+                    'view',
                     'default',
                     array( 'sortby' => '4' )
                     ) ) );
     $headers[5]['label'] = $gLocale->GetStr( 'paidamount.header' );
     $headers[5]['link'] = WuiEventsCall::buildEventsCallString( '',
             array( array(
-                    'main',
+                    'view',
                     'default',
                     array( 'sortby' => '5' )
                     ) ) );
@@ -584,7 +583,7 @@ $users_query->Free();
         
     $num_invoices = count( $search_results );
 
-    $xen_customers = new InnoworkDirectoryCompany(
+    $xen_customers = new InnoworkCompany(
         InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
         InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
@@ -598,7 +597,7 @@ $users_query->Free();
 
     foreach ( $customers_search as $id => $data )
     {
-        if ($data['companytype']==XENDIRECTORY_COMPANY_TYPE_CUSTOMER or $data['companytype']==XENDIRECTORY_COMPANY_TYPE_BOTH )
+        if ($data['companytype']==INNOWORKDIRECTORY_COMPANY_TYPE_CUSTOMER or $data['companytype']==INNOWORKDIRECTORY_COMPANY_TYPE_BOTH )
         $customers[$id] = $data['companyname'];
     }
 
@@ -628,7 +627,7 @@ $users_query->Free();
       <args>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
-                    'main',
+                    'view',
                     'default',
                     array(
                         'filter' => 'true'
@@ -678,7 +677,7 @@ $users_query->Free();
             <label type="encoded">'.urlencode( $gLocale->GetStr( 'filter.submit' ) ).'</label>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
-                    'main',
+                    'view',
                     'default',
                     array(
                         'filter' => 'true'
@@ -770,8 +769,6 @@ $users_query->Free();
                     }
                     else
                     {
-                        OpenLibrary( 'table.hui', HANDLER_PATH );
-
                         $table = new WuiTable(
                             'invoices'
                             );
@@ -834,7 +831,7 @@ $users_query->Free();
                 if ( $row >= $from and $row <= $to )
                 {
 
-                    $tmp_customer = new InnoworkDirectoryCompany(
+                    $tmp_customer = new InnoworkCompany(
                         InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
                         InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
                         $fields['customerid']
@@ -950,17 +947,17 @@ if ( $row >= $from and $row <= $to )
     <bold>'.( $expired ? 'true' : 'false' ).'</bold>
   </args>
 </label>
-<amptoolbar row="'.$row.'" col="7"><name>tools</name>
+<innomatictoolbar row="'.$row.'" col="7"><name>tools</name>
   <args>
     <frame>false</frame>
     <toolbars type="array">'.WuiXml::encode( array(
-        'main' => array(
+        'view' => array(
             'show' => array(
                 'label' => $gLocale->GetStr( 'showinvoice.button' ),
                 'themeimage' => 'zoom',
                 'horiz' => 'true',
                 'action' => WuiEventsCall::buildEventsCallString( '', array( array(
-                    'main',
+                    'view',
                     'showinvoice',
                     array( 'id' => $id ) ) ) )
                 ),
@@ -970,7 +967,7 @@ if ( $row >= $from and $row <= $to )
                 'horiz' => 'true',
                 'target' => '_blank',
                 'action' => WuiEventsCall::buildEventsCallString( '', array( array(
-                    'main',
+                    'view',
                     'printinvoice',
                     array( 'id' => $id ) ) ) )
                 ),
@@ -979,7 +976,7 @@ if ( $row >= $from and $row <= $to )
                 'themeimage' => 'mail_send',
                 'horiz' => 'true',
                 'action' => WuiEventsCall::buildEventsCallString( '', array( array(
-                    'main',
+                    'view',
                     'sendinvoice',
                     array( 'id' => $id ) ) ) )
                 ),
@@ -988,7 +985,7 @@ if ( $row >= $from and $row <= $to )
                 'themeimage' => 'folder',
                 'horiz' => 'true',
                 'action' => WuiEventsCall::buildEventsCallString( '', array( array(
-                    'main',
+                    'view',
                     'invoicepayment',
                     array( 'id' => $id ) ) ) )
                 ),
@@ -1000,7 +997,7 @@ if ( $row >= $from and $row <= $to )
                 'confirmmessage' => $gLocale->GetStr( 'removeinvoice.confirm' ),
                 'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'default',
                         ''
                     ),
@@ -1010,7 +1007,7 @@ if ( $row >= $from and $row <= $to )
                         array( 'id' => $id ) ) ) )
         ) ) ) ).'</toolbars>
   </args>
-</amptoolbar>';
+</innomatictoolbar>';
 }
 
             $row++;
@@ -1103,7 +1100,7 @@ function main_newinvoice( $eventData )
 
     // Companies list
 
-    $xen_companies = new InnoworkDirectoryCompany(
+    $xen_companies = new InnoworkCompany(
         InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
         InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
         );
@@ -1116,7 +1113,7 @@ function main_newinvoice( $eventData )
 
     while ( list( $id, $fields ) = each( $search_results ) )
     {
-        if ($fields['companytype']==XENDIRECTORY_COMPANY_TYPE_CUSTOMER or $fields['companytype']==XENDIRECTORY_COMPANY_TYPE_BOTH )
+        if ($fields['companytype']==INNOWORKDIRECTORY_COMPANY_TYPE_CUSTOMER or $fields['companytype']==INNOWORKDIRECTORY_COMPANY_TYPE_BOTH )
         $companies[$id] = $fields['companyname'];
     }
 
@@ -1148,7 +1145,7 @@ function main_newinvoice( $eventData )
 
     while ( !$payments_query->eof )
     {
-        $payments[$payments_query->Fields( 'id' )] = $payments_query->Fields( 'description' );
+        $payments[$payments_query->getFields( 'id' )] = $payments_query->getFields( 'description' );
         $payments_query->MoveNext();
     }
 
@@ -1174,6 +1171,7 @@ function main_newinvoice( $eventData )
 
     // Defaults
 
+    require_once 'innowork/billing/InnoworkBillingSettingsHandler.php';
     $sets = new InnoworkBillingSettingsHandler();
 
     $gXml_def .=
@@ -1194,7 +1192,7 @@ function main_newinvoice( $eventData )
         <method>post</method>
         <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
-                    'main',
+                    'view',
                     'showinvoice',
                     ''
                     ),
@@ -1303,7 +1301,7 @@ function main_newinvoice( $eventData )
             <label type="encoded">'.urlencode( $gLocale->GetStr( 'newinvoice.submit' ) ).'</label>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                 array(
-                    'main',
+                    'view',
                     'showinvoice',
                     ''
                     ),
@@ -1347,7 +1345,7 @@ function main_showinvoice( $eventData )
     $inv_data = $xen_invoice->GetItem( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId() );
     // Companies list
 
-    $xen_customer = new InnoworkDirectoryCompany(
+    $xen_customer = new InnoworkCompany(
         InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
         InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $inv_data['customerid']
@@ -1363,7 +1361,7 @@ function main_showinvoice( $eventData )
 
     while ( list( $id, $fields ) = each( $search_results ) )
     {
-        if ($fields['companytype']==XENDIRECTORY_COMPANY_TYPE_CUSTOMER or $fields['companytype']==XENDIRECTORY_COMPANY_TYPE_BOTH )
+        if ($fields['companytype']==INNOWORKDIRECTORY_COMPANY_TYPE_CUSTOMER or $fields['companytype']==INNOWORKDIRECTORY_COMPANY_TYPE_BOTH )
         $companies[$id] = $fields['companyname'];
     }
 
@@ -1387,11 +1385,9 @@ function main_showinvoice( $eventData )
 
 // Account managers
 
-$users_query = &InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Execute(
+$users_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
     'SELECT username,lname,fname '.
-    'FROM users '.
-    'WHERE siteid='.$GLOBALS['gEnv']['site']['serial'].' '.
-    'AND username<>'.InnomaticContainer::instance('innomaticcontainer')->getDataAccess()->Format_Text( $GLOBALS['gEnv']['site']['id'] ).' '.
+    'FROM domain_users '.
     'ORDER BY lname,fname'
     );
 
@@ -1399,7 +1395,7 @@ $gUsers[''] = $gLocale->GetStr( 'no_account_manager.label' );
 
 while ( !$users_query->eof )
 {
-    $gUsers[$users_query->Fields( 'username' )] = $users_query->Fields( 'lname' ).' '.$users_query->Fields( 'fname' );
+    $gUsers[$users_query->getFields( 'username' )] = $users_query->getFields( 'lname' ).' '.$users_query->getFields( 'fname' );
     $users_query->MoveNext();
 }
 
@@ -1407,7 +1403,7 @@ $users_query->Free();
 
     // Payments
 
-    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $payments_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
@@ -1417,12 +1413,11 @@ $users_query->Free();
 
     while ( !$payments_query->eof )
     {
-        $payments[$payments_query->Fields( 'id' )] = $payments_query->Fields( 'description' );
+        $payments[$payments_query->getFields( 'id' )] = $payments_query->getFields( 'description' );
         $payments_query->MoveNext();
     }
 
     // Due date
-
 
     $rows_headers[0]['label'] = $gLocale->GetStr( 'row_description.header' );
     $rows_headers[1]['label'] = $gLocale->GetStr( 'row_amount.header' );
@@ -1449,7 +1444,7 @@ $users_query->Free();
         <method>post</method>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'showinvoice',
                         array( 'id' => $eventData['id'] )
                         ),
@@ -1610,7 +1605,6 @@ $users_query->Free();
           </children>
         </horizgroup>
 
-
         <horizbar/>
 
         <horizgroup><name>invoice</name>
@@ -1759,7 +1753,7 @@ $users_query->Free();
             <frame>false</frame>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'showinvoice',
                         array( 'id' => $eventData['id'] )
                         ),
@@ -1780,7 +1774,7 @@ $users_query->Free();
             <frame>false</frame>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'default'
                         )
                 ) ) ).'</action>
@@ -1796,7 +1790,7 @@ $users_query->Free();
             <target>_blank</target>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'printinvoice',
                         array( 'id' => $eventData['id'] )
                         )
@@ -1812,7 +1806,7 @@ $users_query->Free();
             <frame>false</frame>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'sendinvoice',
                         array( 'id' => $eventData['id'] )
                         )
@@ -1830,7 +1824,7 @@ $users_query->Free();
             <confirmmessage type="encoded">'.urlencode( $gLocale->GetStr( 'removeinvoice.confirm' ) ).'</confirmmessage>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'default'
                         ),
                     array(
@@ -1854,7 +1848,7 @@ $users_query->Free();
             <action type="encoded">'.urlencode(
                 WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'showinvoice',
                         array( 'id' => $eventData['id'] )
                         ),
@@ -1888,8 +1882,8 @@ $users_query->Free();
 
     while ( !$vats_query->eof )
     {
-        $vats[$vats_query->Fields( 'id' )] = $vats_query->Fields( 'vat' );
-        $vats_perc[$vats_query->Fields( 'id' )] = $vats_query->Fields( 'percentual' );
+        $vats[$vats_query->getFields( 'id' )] = $vats_query->getFields( 'vat' );
+        $vats_perc[$vats_query->getFields( 'id' )] = $vats_query->getFields( 'percentual' );
         $vats_query->MoveNext();
     }
 
@@ -1938,7 +1932,7 @@ $users_query->Free();
    <label type="encoded">'.urlencode( $row_data['total'] ).'</label>
   </args>
 </label>
-<amptoolbar row="'.$row.'" col="6"><name>tools</name>
+<innomatictoolbar row="'.$row.'" col="6"><name>tools</name>
   <args>
     <frame>false</frame>
     <toolbars type="array">'.WuiXml::encode( array(
@@ -1950,7 +1944,7 @@ $users_query->Free();
                 'formsubmit' => 'rows',
                 'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'showinvoice',
                         array( 'id' => $eventData['id'] )
                         ),
@@ -1970,7 +1964,7 @@ $users_query->Free();
                 'confirmmessage' => $gLocale->GetStr( 'remove_row.confirm' ),
                 'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'showinvoice',
                         array( 'id' => $eventData['id'] )
                     ),
@@ -1984,7 +1978,7 @@ $users_query->Free();
                     ) ) )
         ) ) ) ).'</toolbars>
   </args>
-</amptoolbar>';
+</innomatictoolbar>';
 
         $row++;
     }
@@ -1998,6 +1992,7 @@ $users_query->Free();
 
     unset( $rows_headers );
 
+    require_once 'innowork/billing/InnoworkBillingSettingsHandler.php';
     $sets = new InnoworkBillingSettingsHandler();
     $rows_headers[0]['label'] = $gLocale->GetStr( 'row_description.header' );
     $rows_headers[1]['label'] = $gLocale->GetStr( 'row_amount.header' );
@@ -2014,7 +2009,7 @@ $users_query->Free();
             <action type="encoded">'.urlencode(
                 WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'showinvoice',
                         array( 'id' => $eventData['id'] )
                         ),
@@ -2065,7 +2060,7 @@ $users_query->Free();
     <default>'.$sets->GetDefaultVat().'</default>
   </args>
 </combobox>
-<amptoolbar row="0" col="5"><name>tools</name>
+<innomatictoolbar row="0" col="5"><name>tools</name>
   <args>
     <frame>false</frame>
     <toolbars type="array">'.WuiXml::encode( array(
@@ -2077,7 +2072,7 @@ $users_query->Free();
                 'formsubmit' => 'addrow',
                 'action' => WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'showinvoice',
                         array( 'id' => $eventData['id'] )
                         ),
@@ -2091,7 +2086,7 @@ $users_query->Free();
                 )
         ) ) ) ).'</toolbars>
   </args>
-</amptoolbar>
+</innomatictoolbar>
               </children>
             </table>
 
@@ -2134,7 +2129,7 @@ function main_invoicepayment(
       <args>
         <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'default',
                         ''
                         ),
@@ -2192,7 +2187,7 @@ function main_invoicepayment(
             <frame>false</frame>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'default',
                         ''
                         ),
@@ -2229,9 +2224,9 @@ function main_sendinvoice(
 
     $inv_data = $xen_invoice->GetItem();
 
-    OpenLibrary( 'xendirectory.library' );
+    require_once('innowork/groupware/InnoworkCompany.php');
 
-    $xen_customer = new InnoworkDirectoryCompany(
+    $xen_customer = new InnoworkCompany(
         InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
         InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
         $inv_data['customerid']
@@ -2247,7 +2242,7 @@ function main_sendinvoice(
       <args>
         <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'default',
                         ''
                         ),
@@ -2291,7 +2286,7 @@ function main_sendinvoice(
             <frame>false</frame>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
                     array(
-                        'main',
+                        'view',
                         'default',
                         ''
                         ),
@@ -2341,21 +2336,21 @@ $gWui->AddChild( new WuiInnomaticPage( 'page', array(
         new WuiInnomaticToolbar(
             'main',
             array(
-                'toolbars' => $gToolbars
+                'toolbars' => $gToolbars,
+            		'toolbar' => 'true'
                 ) ),
         new WuiInnomaticToolbar(
             'core',
             array(
-                'toolbars' => $gCore_toolbars
+                'toolbars' => $gCore_toolbars,
+            		'toolbar' => 'true'
                 ) ),
             ),
     'maincontent' => new WuiXml(
         'page', array(
-            'definition' => "<?xml version='1.0' encoding='ISO-8859-1'?>\n".$gXml_def
+            'definition' => $gXml_def
             ) ),
     'status' => $gPage_status
     ) ) );
 
 $gWui->Render();
-
-?>

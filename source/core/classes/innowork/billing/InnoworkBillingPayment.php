@@ -24,9 +24,9 @@ class InnoworkBillingPayment
 			if ( $check_query->getNumberRows() )
 			{
 				$this->mId = $id;
-				$this->mDescription = $check_query->Fields( 'description' );
-				$this->mDays = $check_query->Fields( 'days' );
-				$this->mMonthEnd = $check_query->Fields( 'monthend' ) == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue ? true : false;
+				$this->mDescription = $check_query->getFields( 'description' );
+				$this->mDays = $check_query->getFields( 'days' );
+				$this->mMonthEnd = $check_query->getFields( 'monthend' ) == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue ? true : false;
 
 				$check_query->Free();
 			}
@@ -43,16 +43,16 @@ class InnoworkBillingPayment
 
 		if ( !$this->mId )
 		{
-			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->NextSeqValue( 'innowork_billing_payments_id_seq' );
+			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSeqValue( 'innowork_billing_payments_id_seq' );
 			$days = (int)$days;
 			if ( !strlen( $days ) ) $days = 0;
 
 			if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'INSERT INTO innowork_billing_payments VALUES ('.
 					$id.','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $description ).','.
+					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
 					$days.','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text(
+					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText(
 							$monthEnd ?
 							InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue :
 							InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse
@@ -86,7 +86,7 @@ class InnoworkBillingPayment
 		and
 		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_payments '.
-				'SET description='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Format_Text( $description ).' '.
+				'SET description='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).' '.
 				'WHERE id='.$this->mId
 		)
 		)
