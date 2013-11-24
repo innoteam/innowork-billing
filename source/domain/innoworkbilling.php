@@ -30,7 +30,7 @@ $gCore_toolbars = $gInnowork_core->GetMainToolBar();
 $gToolbars['invoices'] = array(
     'invoices' => array(
         'label' => $gLocale->GetStr( 'invoices.toolbar' ),
-        'themeimage' => 'view_icon',
+        'themeimage' => 'listbulletleft',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -39,7 +39,7 @@ $gToolbars['invoices'] = array(
         ),
     'newinvoice' => array(
         'label' => $gLocale->GetStr( 'newinvoice.toolbar' ),
-        'themeimage' => 'filenew',
+        'themeimage' => 'documentnew',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -51,7 +51,7 @@ $gToolbars['invoices'] = array(
 $gToolbars['prefs'] = array(
     'prefs' => array(
         'label' => $gLocale->GetStr( 'preferences.toolbar' ),
-        'themeimage' => 'configure',
+        'themeimage' => 'settings1',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( 'innoworkbillingprefs', array( array(
             'view',
@@ -670,7 +670,7 @@ $users_query->Free();
 
         <button row="0" col="2"><name>filter</name>
           <args>
-            <themeimage>filter</themeimage>
+            <themeimage>zoom</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <formsubmit>filter</formsubmit>
@@ -963,7 +963,7 @@ if ( $row >= $from and $row <= $to )
                 ),
             'print' => array(
                 'label' => $gLocale->GetStr( 'printinvoice.submit' ),
-                'themeimage' => 'fileprint',
+                'themeimage' => 'printer',
                 'horiz' => 'true',
                 'target' => '_blank',
                 'action' => WuiEventsCall::buildEventsCallString( '', array( array(
@@ -973,7 +973,7 @@ if ( $row >= $from and $row <= $to )
                 ),
             'send' => array(
                 'label' => $gLocale->GetStr( 'sendinvoice.button' ),
-                'themeimage' => 'mail_send',
+                'themeimage' => 'mail',
                 'horiz' => 'true',
                 'action' => WuiEventsCall::buildEventsCallString( '', array( array(
                     'view',
@@ -1748,7 +1748,7 @@ $users_query->Free();
 
         <button><name>apply</name>
           <args>
-            <themeimage>filesave</themeimage>
+            <themeimage>buttonok</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
@@ -1767,24 +1767,9 @@ $users_query->Free();
           </args>
         </button>
 
-        <button><name>close</name>
-          <args>
-            <themeimage>fileclose</themeimage>
-            <horiz>true</horiz>
-            <frame>false</frame>
-            <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
-                    array(
-                        'view',
-                        'default'
-                        )
-                ) ) ).'</action>
-            <label type="encoded">'.urlencode( $gLocale->GetStr( 'closeinvoice.submit' ) ).'</label>
-          </args>
-        </button>
-
         <button><name>print</name>
           <args>
-            <themeimage>fileprint</themeimage>
+            <themeimage>printer</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <target>_blank</target>
@@ -1801,7 +1786,7 @@ $users_query->Free();
 
         <button><name>send</name>
           <args>
-            <themeimage>mail_send</themeimage>
+            <themeimage>mail</themeimage>
             <horiz>true</horiz>
             <frame>false</frame>
             <action type="encoded">'.urlencode( WuiEventsCall::buildEventsCallString( '', array(
@@ -1939,7 +1924,7 @@ $users_query->Free();
         'main' => array(
             'update' => array(
                 'label' => $gLocale->GetStr( 'update_row.button' ),
-                'themeimage' => 'filesave',
+                'themeimage' => 'buttonok',
                 'horiz' => 'true',
                 'formsubmit' => 'rows',
                 'action' => WuiEventsCall::buildEventsCallString( '', array(
@@ -1958,7 +1943,7 @@ $users_query->Free();
                 ) ),
             'remove' => array(
                 'label' => $gLocale->GetStr( 'remove_row.button' ),
-                'themeimage' => 'edit_remove',
+                'themeimage' => 'mathsub',
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'remove_row.confirm' ),
@@ -2067,7 +2052,7 @@ $users_query->Free();
         'main' => array(
             'add' => array(
                 'label' => $gLocale->GetStr( 'add_row.button' ),
-                'themeimage' => 'edit_add',
+                'themeimage' => 'mathadd',
                 'horiz' => 'true',
                 'formsubmit' => 'addrow',
                 'action' => WuiEventsCall::buildEventsCallString( '', array(

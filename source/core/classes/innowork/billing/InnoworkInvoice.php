@@ -6,13 +6,13 @@ require_once('innowork/core/InnoworkItem.php');
 class InnoworkInvoice extends InnoworkItem
 {
     var $mTable = 'innowork_billing_invoices';
-    var $mNewDispatcher = 'main';
+    var $mNewDispatcher = 'view';
     var $mNewEvent = 'newinvoice';
     var $mNoAcl = true;
     //var $mNoLog = true;
     var $mNoTrash = false;
     var $mConvertible = true;
-    const ITEM_TYPE = 'billing';
+    const ITEM_TYPE = 'invoice';
 
     function InnoworkInvoice(
         $rampDb,

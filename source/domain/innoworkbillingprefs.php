@@ -31,9 +31,9 @@ $gCore_toolbars = $gInnowork_core->GetMainToolBar();
 $gToolbars['invoices'] = array(
     'invoices' => array(
         'label' => $gLocale->GetStr( 'invoices.toolbar' ),
-        'themeimage' => 'view_icon',
+        'themeimage' => 'listbulletleft',
         'horiz' => 'true',
-        'action' => WuiEventsCall::buildEventsCallString( 'xenbilling.php', array( array(
+        'action' => WuiEventsCall::buildEventsCallString( 'innoworkbilling', array( array(
             'view',
             'default',
             '' ) ) )
@@ -43,7 +43,7 @@ $gToolbars['invoices'] = array(
 $gToolbars['vats'] = array(
     'vats' => array(
         'label' => $gLocale->GetStr( 'vats.toolbar' ),
-        'themeimage' => 'view_icon',
+        'themeimage' => 'listbulletleft',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -52,7 +52,7 @@ $gToolbars['vats'] = array(
         ),
     'newvat' => array(
         'label' => $gLocale->GetStr( 'newvat.toolbar' ),
-        'themeimage' => 'filenew',
+        'themeimage' => 'mathadd',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -63,7 +63,7 @@ $gToolbars['vats'] = array(
 $gToolbars['payments'] = array(
     'payments' => array(
         'label' => $gLocale->GetStr( 'payments.toolbar' ),
-        'themeimage' => 'view_icon',
+        'themeimage' => 'listbulletleft',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -72,7 +72,7 @@ $gToolbars['payments'] = array(
         ),
     'newpayment' => array(
         'label' => $gLocale->GetStr( 'newpayment.toolbar' ),
-        'themeimage' => 'filenew',
+        'themeimage' => 'mathadd',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -83,7 +83,7 @@ $gToolbars['payments'] = array(
 $gToolbars['settings'] = array(
     'settings' => array(
         'label' => $gLocale->GetStr( 'settings.toolbar' ),
-        'themeimage' => 'configure',
+        'themeimage' => 'settings1',
         'horiz' => 'true',
         'action' => WuiEventsCall::buildEventsCallString( '', array( array(
             'view',
@@ -343,7 +343,7 @@ function main_default( $eventData )
                 ),
             'remove' => array(
                 'label' => $gLocale->GetStr( 'removevat.button' ),
-                'themeimage' => 'editdelete',
+                'themeimage' => 'mathsub',
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'removevat.confirm' ),
@@ -634,7 +634,7 @@ function main_payments( $eventData )
                 ),
             'remove' => array(
                 'label' => $gLocale->GetStr( 'removepayment.button' ),
-                'themeimage' => 'editdelete',
+                'themeimage' => 'mathsub',
                 'horiz' => 'true',
                 'needconfirm' => 'true',
                 'confirmmessage' => $gLocale->GetStr( 'removepayment.confirm' ),

@@ -12,6 +12,7 @@
 		<category>intranet</category>
 		<iconfile></iconfile>
 		<dependencies>
+			<dependency>innomatic[6.1]</dependency>
 			<dependency>innowork-core[3.1]</dependency>
 			<dependency>innowork-groupware[2.0]</dependency>
 			<dependency>rhtemplatelib</dependency>
