@@ -4,7 +4,7 @@
 	<definition>
 		<idname>innowork-billing</idname>
 		<release>
-			<version>1.2</version>
+			<version>1.4</version>
 			<date>2011/11/24</date>
 			<changesfile>CHANGES</changesfile>
 		</release>
