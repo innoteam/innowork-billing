@@ -748,7 +748,7 @@ require_once('innomatic/locale/LocaleCountry.php');
     	require_once 'rhtemplate/RHTemplate.php';
         require_once('innomatic/locale/LocaleCatalog.php');
 		require_once('innomatic/locale/LocaleCountry.php');
-		require_once('innowork/groupware/InnoworkProject.php');
+		require_once('innowork/projects/InnoworkProject.php');
 		require_once('innowork/groupware/InnoworkCompany.php');
 
         $locale_country = new LocaleCountry(
