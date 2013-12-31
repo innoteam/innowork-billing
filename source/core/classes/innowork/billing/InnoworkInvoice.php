@@ -861,15 +861,14 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         if ( $this->mItemId )
         {
-        	require_once('innomatic/application/ApplicationDependencies.php');
-
-            $mod_deps = new ApplicationDependencies(
+            $mod_deps = new \Innomatic\Application\ApplicationDependencies(
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
                 );
+            
             if (
-                $mod_deps->IsInstalled( 'htmlmimemail' )
+                $mod_deps->isInstalled( 'htmlmimemail' )
                 and
-                $mod_deps->IsInstalled( 'smtpsend' )
+                $mod_deps->isInstalled( 'smtpsend' )
                 )
             {
                 $inv_data = $this->GetItem();
