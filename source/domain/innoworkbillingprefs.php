@@ -13,13 +13,13 @@ require_once('innomatic/locale/LocaleCountry.php');
 global $gLocale, $gPage_title, $gXml_def, $gPage_status;
 
 $gInnowork_core = InnoworkCore::instance('innoworkcore', 
-    InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
     );
 
 $gLocale = new LocaleCatalog(
     'innowork-billing::prefs',
-    InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getLanguage()
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
     );
 
 $gWui = Wui::instance('wui');
@@ -294,7 +294,7 @@ function main_default( $eventData )
 {
     global $gLocale, $gPage_title, $gXml_def, $gPage_status;
 
-    $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_vat_codes '.
         'ORDER BY vat'
@@ -476,7 +476,7 @@ function main_editvat(
 {
     global $gLocale, $gXml_def;
 
-    $vat_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $vat_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_vat_codes '.
         'WHERE id='.$eventData['id']
@@ -575,7 +575,7 @@ function main_payments( $eventData )
 {
     global $gLocale, $gPage_title, $gXml_def, $gPage_status;
 
-    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $payments_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
@@ -612,7 +612,7 @@ function main_payments( $eventData )
 <label row="'.$row.'" col="2">
   <args>
     <label type="encoded">'.urlencode(
-        $payments_query->getFields( 'monthend' ) == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue ?
+        $payments_query->getFields( 'monthend' ) == \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue ?
         $gLocale->GetStr( 'yes.label' ) :
         $gLocale->GetStr( 'no.label' )
         ).'</label>
@@ -779,7 +779,7 @@ function main_editpayment(
 {
     global $gLocale, $gXml_def;
 
-    $payment_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $payment_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'WHERE id='.$eventData['id']
@@ -846,7 +846,7 @@ function main_editpayment(
               <args>
                 <disp>action</disp>
                 <checked>'.(
-                    $payment_query->getFields( 'monthend' ) == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue ?
+                    $payment_query->getFields( 'monthend' ) == \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue ?
                     'true':
                     'false'
                     ).'</checked>
@@ -914,7 +914,7 @@ function main_settings(
 
     $sets = new InnoworkBillingSettingsHandler();
 
-    $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT id,vat '.
         'FROM innowork_billing_vat_codes '.
         'ORDER BY vat'
@@ -927,7 +927,7 @@ function main_settings(
         $vats_query->MoveNext();
     }
 
-    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $payments_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT id,description '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'

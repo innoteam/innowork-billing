@@ -12,13 +12,13 @@ require_once('innomatic/locale/LocaleCountry.php');
 global $gLocale, $gPage_title, $gXml_def, $gPage_status, $gInnowork_core;
 
 $gInnowork_core = InnoworkCore::instance('innoworkcore', 
-    InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
     );
 
 $gLocale = new LocaleCatalog(
     'innowork-billing::main',
-    InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getLanguage()
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
     );
 
 $gWui = Wui::instance('wui');
@@ -73,15 +73,15 @@ function action_newinvoice( $eventData )
     global $gLocale, $gPage_status;
 
     $xen_project = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
 
     if ( $eventData['customerid'] )
     {
         $customer = new InnoworkCompany(
-            InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
             $eventData['customerid']
             );
 
@@ -98,7 +98,7 @@ function action_newinvoice( $eventData )
 
             require_once('innomatic/locale/LocaleCatalog.php');
 			require_once('innomatic/locale/LocaleCountry.php');
-            $country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
+            $country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
 
             $date_array = $country->GetDateArrayFromShortDateStamp( $eventData['emissiondate'] );
             $emission_date_tstamp = mktime(
@@ -134,7 +134,7 @@ function action_newinvoice( $eventData )
 
     if ( $xen_project->Create(
         $eventData,
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         ) )
     {
         $GLOBALS['gEnv']['runtime']['xen-billing']['newinvoiceid'] = $xen_project->mItemId;
@@ -152,14 +152,14 @@ function action_editinvoice( $eventData )
     global $gLocale, $gPage_status;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
     if ( $xen_invoice->Edit(
         $eventData,
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         ) ) $gPage_status = $gLocale->GetStr( 'invoice_updated.status' );
     else $gPage_status = $gLocale->GetStr( 'invoice_not_updated.status' );
 }
@@ -173,13 +173,13 @@ function action_removeinvoice( $eventData )
     global $gLocale, $gPage_status;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
     if ( $xen_invoice->Remove(
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         ) ) $gPage_status = $gLocale->GetStr( 'invoice_removed.status' );
     else $gPage_status = $gLocale->GetStr( 'invoice_not_removed.status' );
 }
@@ -195,8 +195,8 @@ function action_addrow(
     global $gLocale, $gPage_status;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -219,12 +219,12 @@ function action_editrows(
 {
     global $gLocale, $gPage_status;
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
-    $rows_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $rows_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT id '.
         'FROM innowork_billing_invoices_rows '.
         'WHERE invoiceid='.$eventData['invoiceid']
@@ -259,8 +259,8 @@ function action_removerow(
     global $gLocale, $gPage_status;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -280,8 +280,8 @@ function action_invoicepayment(
     global $gLocale, $gPage_status;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -301,8 +301,8 @@ function action_sendinvoice(
     global $gLocale, $gPage_status;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['invoiceid']
         );
 
@@ -339,7 +339,7 @@ function main_default( $eventData )
     global $gLocale, $gPage_title, $gXml_def, $gPage_status, $gInnowork_core;
 
 // Account managers
-$users_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+$users_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
     'SELECT username,lname,fname '.
     'FROM domain_users '.
     'ORDER BY lname,fname'
@@ -476,7 +476,7 @@ $users_query->Free();
         );
 
     $country = new LocaleCountry(
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry()
         );
 
     $summaries = $gInnowork_core->GetSummaries();
@@ -506,8 +506,8 @@ $users_query->Free();
     }
 
     $invoices = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
 
     switch ( $sort_by )
@@ -578,19 +578,19 @@ $users_query->Free();
 
     $search_results = $invoices->Search(
         $search_keys,
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
         
     $num_invoices = count( $search_results );
 
     $xen_customers = new InnoworkCompany(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
 
     $customers_search = $xen_customers->Search(
         '',
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
 
     $customers[0] = $gLocale->GetStr( 'all_customers.label' );
@@ -610,7 +610,7 @@ $users_query->Free();
     unset( $xen_customers );
     unset( $customers_search );
 
-        $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
+        $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
 
         $gXml_def =
 '<vertgroup><name>invoices</name>
@@ -782,8 +782,8 @@ $users_query->Free();
                     $to = $from + 10 - 1;
 
         $xen_core = InnoworkCore::instance('innoworkcore', 
-    InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
     );
 
         $summaries = $xen_core->GetSummaries();
@@ -793,7 +793,7 @@ $users_query->Free();
             $expired = false;
             // Due date
 
-            $due_date_array = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp( $fields['duedate'] );
+            $due_date_array = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp( $fields['duedate'] );
             $due_date = $locale_country->FormatShortArrayDate( $due_date_array );
 
             if ( ( $fields['total'] - $fields['paidamount'] ) > 0 )
@@ -832,16 +832,16 @@ $users_query->Free();
                 {
 
                     $tmp_customer = new InnoworkCompany(
-                        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-                        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+                        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+                        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
                         $fields['customerid']
                         );
 
                     $tmp_customer_data = $tmp_customer->GetItem();
 
                     $tmp_project = new InnoworkProject(
-                        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-                        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+                        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+                        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
                         $fields['projectid']
                         );
 
@@ -867,7 +867,7 @@ if ( $row >= $from and $row <= $to )
   <args>
     <label type="encoded">'.urlencode(
         $locale_country->FormatShortArrayDate(
-            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                 $fields['emissiondate']
                 ) ) ).'</label>
   </args>
@@ -1101,12 +1101,12 @@ function main_newinvoice( $eventData )
     // Companies list
 
     $xen_companies = new InnoworkCompany(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
     $search_results = $xen_companies->Search(
         '',
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
 
     $companies['0'] = $gLocale->GetStr( 'nocompany.label' );
@@ -1120,12 +1120,12 @@ function main_newinvoice( $eventData )
     // Projects list
 
     $xen_projects = new InnoworkProject(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
     $search_results = $xen_projects->Search(
         '',
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
 
     $projects['0'] = $gLocale->GetStr( 'noproject.label' );
@@ -1135,7 +1135,7 @@ function main_newinvoice( $eventData )
         $projects[$id] = $fields['name'];
     }
 
-    $payments_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $payments_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
@@ -1152,8 +1152,8 @@ function main_newinvoice( $eventData )
     // Invoice number
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
 
     $invoice_number = (int)$xen_invoice->GetLastInvoiceNumber();
@@ -1162,7 +1162,7 @@ function main_newinvoice( $eventData )
     // Emission date
 
     $locale_country = new LocaleCountry(
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry()
         );
 
     $curr_date = $locale_country->GetDateArrayFromSafeTimestamp(
@@ -1328,7 +1328,7 @@ function main_showinvoice( $eventData )
     global $gXml_def, $gLocale, $gPage_title;
 
     $locale_country = new LocaleCountry(
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
         );
 
     if ( isset( $GLOBALS['gEnv']['runtime']['xen-billing']['newinvoiceid'] ) )
@@ -1337,22 +1337,22 @@ function main_showinvoice( $eventData )
     }
 
     $xen_invoice = new Innoworkinvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
-    $inv_data = $xen_invoice->GetItem( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId() );
+    $inv_data = $xen_invoice->GetItem( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId() );
     // Companies list
 
     $xen_customer = new InnoworkCompany(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $inv_data['customerid']
         );
     $search_results = $xen_customer->Search(
         '',
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
 
     $cust_data = $xen_customer->GetItem();
@@ -1368,12 +1368,12 @@ function main_showinvoice( $eventData )
     // Projects list
 
     $xen_projects = new InnoworkProject(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()
         );
     $search_results = $xen_projects->Search(
         array( 'customerid' => $inv_data['customerid'] ),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getUserId()
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getUserId()
         );
 
     $projects['0'] = $gLocale->GetStr( 'noproject.label' );
@@ -1385,7 +1385,7 @@ function main_showinvoice( $eventData )
 
 // Account managers
 
-$users_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+$users_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
     'SELECT username,lname,fname '.
     'FROM domain_users '.
     'ORDER BY lname,fname'
@@ -1403,7 +1403,7 @@ $users_query->Free();
 
     // Payments
 
-    $payments_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $payments_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_payments '.
         'ORDER BY description'
@@ -1632,7 +1632,7 @@ $users_query->Free();
               <args>
                 <disp>action</disp>
                 <value type="array">'.WuiXml::encode(
-                    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
+                    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                         $inv_data['emissiondate'] ) ).'</value>
                 <type>date</type>
               </args>
@@ -1666,7 +1666,7 @@ $users_query->Free();
               <args>
                 <disp>action</disp>
                 <value type="array">'.WuiXml::encode(
-                    InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
+                    \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                         $inv_data['duedate'] ) ).'</value>
                 <type>date</type>
               </args>
@@ -1856,7 +1856,7 @@ $users_query->Free();
 
 	$row_list = $xen_invoice->GetRows();
 	
-    $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+    $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
         'SELECT * '.
         'FROM innowork_billing_vat_codes '.
         'ORDER BY vat'
@@ -2099,8 +2099,8 @@ function main_invoicepayment(
     global $gLocale, $gXml_def;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
@@ -2202,8 +2202,8 @@ function main_sendinvoice(
     global $gLocale, $gXml_def;
 
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $eventData['id']
         );
 
@@ -2212,8 +2212,8 @@ function main_sendinvoice(
     require_once('innowork/groupware/InnoworkCompany.php');
 
     $xen_customer = new InnoworkCompany(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
         $inv_data['customerid']
         );
 
@@ -2299,8 +2299,8 @@ function main_printinvoice(
     )
 {
     $xen_invoice = new InnoworkInvoice(
-        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
 
         $eventData['id']
         );

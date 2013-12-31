@@ -91,7 +91,7 @@ class InnoworkInvoice extends InnoworkItem
 
             require_once('innomatic/locale/LocaleCatalog.php');
 			require_once('innomatic/locale/LocaleCountry.php');
-            $country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
+            $country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
 
             while ( list( $key, $val ) = each( $params ) )
             {
@@ -166,7 +166,7 @@ class InnoworkInvoice extends InnoworkItem
                 $start = 1;
                 $update_str = '';
 
-                $country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentUser()->getCountry() );
+                $country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
 
                 while ( list( $field, $value ) = each( $params ) )
                 {
@@ -237,7 +237,7 @@ class InnoworkInvoice extends InnoworkItem
 
         if ( $result )
         {
-            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'DELETE FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId
                 );
@@ -286,7 +286,7 @@ class InnoworkInvoice extends InnoworkItem
         {
             require_once('innomatic/locale/LocaleCatalog.php');
 require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
             $amount = number_format(
@@ -296,16 +296,16 @@ require_once('innomatic/locale/LocaleCountry.php');
                 ''
                 );
 
-            $id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_invoices_rows_id_seq' );
+            $id = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_invoices_rows_id_seq' );
 
-            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'INSERT INTO innowork_billing_invoices_rows (id, invoiceid, description, amount, quantity, discount, vatid ) '.
                 'VALUES ('.$id.','.
                 $this->mItemId.','.
-                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
-                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).','.
-                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$quantity ).','.
-                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$discount ).','.
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).','.
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$quantity ).','.
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$discount ).','.
                 $vatId.')' ) )
             {
                 $this->SetInvoiceTotals(
@@ -334,7 +334,7 @@ require_once('innomatic/locale/LocaleCountry.php');
             $rowId
             )
         {
-            $query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT * '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId.' '.
@@ -381,7 +381,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         {
             require_once('innomatic/locale/LocaleCatalog.php');
 require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
             $amount = number_format(
@@ -393,12 +393,12 @@ require_once('innomatic/locale/LocaleCountry.php');
 
             $old_row = $this->GetRow( $rowId );
 
-            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'UPDATE innowork_billing_invoices_rows SET '.
-                'description='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
-                'amount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).','.
-                'quantity='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$quantity ).','.
-                'discount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$discount ).','.
+                'description='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
+                'amount='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).','.
+                'quantity='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$quantity ).','.
+                'discount='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$discount ).','.
                 'vatid='.$vatId.' '.
                 'WHERE id='.$rowId.' '.
                 'AND invoiceid='.$this->mItemId ) )
@@ -429,7 +429,7 @@ require_once('innomatic/locale/LocaleCountry.php');
             $rowId
             )
         {
-            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'DELETE FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId.' '.
                 'AND id='.$rowId
@@ -453,17 +453,17 @@ require_once('innomatic/locale/LocaleCountry.php');
         if ( $this->mItemId )
         {
             $locale_country = new LocaleCountry(
-                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry()
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
                 );
 
-            $rows_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $rows_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT * '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId.' '.
                 'ORDER BY id'
                 );
 
-            $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT id,percentual '.
                 'FROM innowork_billing_vat_codes '
                 );
@@ -566,13 +566,13 @@ require_once('innomatic/locale/LocaleCountry.php');
         {
             require_once('innomatic/locale/LocaleCatalog.php');
 require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $result['amount'] = $result['vat'] = $result['total'] = 0;
 
             $vats = array();
 
-            $vats_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT id,percentual '.
                 'FROM innowork_billing_vat_codes'
                 );
@@ -584,7 +584,7 @@ require_once('innomatic/locale/LocaleCountry.php');
                 $vats_query->MoveNext();
             }
 
-            $rows_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $rows_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT amount,quantity,discount,vatid '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId
@@ -640,7 +640,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         if ( $this->mItemId )
         {
-            $query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT amount,vat,total '.
                 'FROM innowork_billing_invoices '.
                 'WHERE id='.$this->mItemId
@@ -665,11 +665,11 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         if ( $this->mItemId )
         {
-            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'UPDATE innowork_billing_invoices '.
-                'SET amount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $totals['amount'] ).','.
-                'vat='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $totals['vat'] ).','.
-                'total='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $totals['total'] ).' '.
+                'SET amount='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $totals['amount'] ).','.
+                'vat='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $totals['vat'] ).','.
+                'total='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $totals['total'] ).' '.
                 'WHERE id='.$this->mItemId
                 ) )
             {
@@ -691,7 +691,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         {
             require_once('innomatic/locale/LocaleCatalog.php');
 require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
 
@@ -702,9 +702,9 @@ require_once('innomatic/locale/LocaleCountry.php');
                 ''
                 );
 
-            if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+            if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'UPDATE innowork_billing_invoices '.
-                'SET paidamount='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).' '.
+                'SET paidamount='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).' '.
                 'WHERE id='.$this->mItemId
                 ) )
             {
@@ -722,7 +722,7 @@ require_once('innomatic/locale/LocaleCountry.php');
     {
         require_once('innomatic/domain/DomainSettings.php');
 
-        $site_sets = new DomainSettings( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess() );
+        $site_sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
         $site_sets->SetKey(
             'xen-billing-lastinvoicenumber',
             $number
@@ -735,7 +735,7 @@ require_once('innomatic/locale/LocaleCountry.php');
     {
         require_once('innomatic/domain/DomainSettings.php');
 
-        $site_sets = new DomainSettings( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess() );
+        $site_sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
         $result = $site_sets->GetKey( 'xen-billing-lastinvoicenumber' );
 
         if ( !strlen( $result ) ) $result = 0;
@@ -752,7 +752,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 		require_once('innowork/groupware/InnoworkCompany.php');
 
         $locale_country = new LocaleCountry(
-            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getCountry()
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
             );
 
         require_once 'innowork/billing/InnoworkBillingSettingsHandler.php';
@@ -774,11 +774,11 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         $template->Register( 'invoice', 'tpl_invoice_number', $inv_data['number'] );
         $template->Register( 'invoice', 'tpl_invoice_emissiondate', $locale_country->FormatShortArrayDate(
-                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                     $inv_data['emissiondate']
                     ) ) );
         $template->Register( 'invoice', 'tpl_invoice_duedate', $locale_country->FormatShortArrayDate(
-                InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->GetDateArrayFromTimestamp(
                     $inv_data['duedate']
                     ) ) );
         $template->Register( 'invoice', 'tpl_invoice_paymenttype', $payment->GetDescription() );
@@ -810,8 +810,8 @@ require_once('innomatic/locale/LocaleCountry.php');
         // Customer data
 
         $xen_company = new InnoworkCompany(
-            InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
             $inv_data['customerid']
             );
 
@@ -837,8 +837,8 @@ require_once('innomatic/locale/LocaleCountry.php');
         // Project data
 
         $xen_project = new InnoworkProject(
-            InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-            InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
             $inv_data['projectid']
             );
 
@@ -864,7 +864,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         	require_once('innomatic/application/ApplicationDependencies.php');
 
             $mod_deps = new ApplicationDependencies(
-                InnomaticContainer::instance('innomaticcontainer')->getDataAccess()
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess()
                 );
             if (
                 $mod_deps->IsInstalled( 'htmlmimemail' )
@@ -883,8 +883,8 @@ require_once('innomatic/locale/LocaleCountry.php');
                     )
                 {
                     $xen_customer = new InnoworkCompany(
-                        InnomaticContainer::instance('innomaticcontainer')->getDataAccess(),
-                        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess(),
+                        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(),
+                        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess(),
                         $inv_data['customerid']
                         );
 
@@ -908,7 +908,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 
                     $locale = new LocaleCatalog(
                         'innowork-billing::misc',
-                        InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getLanguage()
+                        \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getLanguage()
                         );
 
                     $tmp_smtp = $sets->GetSmtpServer();

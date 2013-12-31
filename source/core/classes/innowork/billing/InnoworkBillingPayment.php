@@ -15,7 +15,7 @@ class InnoworkBillingPayment
 
 		if ( $id )
 		{
-			$check_query = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+			$check_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'SELECT * '.
 					'FROM innowork_billing_payments '.
 					'WHERE id='.$id
@@ -26,7 +26,7 @@ class InnoworkBillingPayment
 				$this->mId = $id;
 				$this->mDescription = $check_query->getFields( 'description' );
 				$this->mDays = $check_query->getFields( 'days' );
-				$this->mMonthEnd = $check_query->getFields( 'monthend' ) == InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue ? true : false;
+				$this->mMonthEnd = $check_query->getFields( 'monthend' ) == \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue ? true : false;
 
 				$check_query->Free();
 			}
@@ -43,19 +43,19 @@ class InnoworkBillingPayment
 
 		if ( !$this->mId )
 		{
-			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_payments_id_seq' );
+			$id = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_payments_id_seq' );
 			$days = (int)$days;
 			if ( !strlen( $days ) ) $days = 0;
 
-			if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+			if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'INSERT INTO innowork_billing_payments VALUES ('.
 					$id.','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
+					\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
 					$days.','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText(
+					\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText(
 							$monthEnd ?
-							InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue :
-							InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse
+							\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue :
+							\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmtfalse
 					).')' ) )
 			{
 				$this->mId = $id;
@@ -84,9 +84,9 @@ class InnoworkBillingPayment
 		if (
 		$this->mId
 		and
-		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_payments '.
-				'SET description='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).' '.
+				'SET description='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).' '.
 				'WHERE id='.$this->mId
 		)
 		)
@@ -116,7 +116,7 @@ class InnoworkBillingPayment
 		if (
 		$this->mId
 		and
-		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_payments '.
 				'SET days='.$days.' '.
 				'WHERE id='.$this->mId
@@ -145,12 +145,12 @@ class InnoworkBillingPayment
 		if (
 		$this->mId
 		and
-		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_payments '.
 				'SET monthend='.(
 						$monthEnd ?
-						InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmttrue :
-						InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->fmtfalse
+						\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmttrue :
+						\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->fmtfalse
 				).' '.
 				'WHERE id='.$this->mId
 		)
@@ -171,13 +171,13 @@ class InnoworkBillingPayment
 		if (
 		$this->mId
 		and
-		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'DELETE FROM innowork_billing_payments '.
 				'WHERE id='.$this->mId
 		)
 		)
 		{
-			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+			\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'UPDATE innowork_billing_invoices_rows '.
 					'SET paymentid=0 '.
 					'WHERE paymentid='.$this->mId

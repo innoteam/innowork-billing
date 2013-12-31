@@ -14,7 +14,7 @@ class InnoworkBillingVat
 
 		if ( $id )
 		{
-			$check_query = &InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+			$check_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'SELECT * '.
 					'FROM innowork_billing_vat_codes '.
 					'WHERE id='.$id
@@ -40,13 +40,13 @@ class InnoworkBillingVat
 
 		if ( !$this->mId )
 		{
-			$id = InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_vat_codes_id_seq' );
+			$id = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_vat_codes_id_seq' );
 
-			if ( InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+			if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'INSERT INTO innowork_billing_vat_codes VALUES ('.
 					$id.','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
-					InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $percentual ).')' ) )
+					\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
+					\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $percentual ).')' ) )
 			{
 				$this->mId = $id;
 				$this->mDescription = $description;
@@ -73,9 +73,9 @@ class InnoworkBillingVat
 		if (
 		$this->mId
 		and
-		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_vat_codes '.
-				'SET vat='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).' '.
+				'SET vat='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).' '.
 				'WHERE id='.$this->mId
 		)
 		)
@@ -102,9 +102,9 @@ class InnoworkBillingVat
 		if (
 		$this->mId
 		and
-		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'UPDATE innowork_billing_vat_codes '.
-				'SET percentual='.InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->formatText( $percentual ).' '.
+				'SET percentual='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $percentual ).' '.
 				'WHERE id='.$this->mId
 		)
 		)
@@ -124,13 +124,13 @@ class InnoworkBillingVat
 		if (
 		$this->mId
 		and
-		InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+		\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 				'DELETE FROM innowork_billing_vat_codes '.
 				'WHERE id='.$this->mId
 		)
 		)
 		{
-			InnomaticContainer::instance('innomaticcontainer')->getCurrentDomain()->getDataAccess()->Execute(
+			\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
 					'UPDATE innowork_billing_invoices_rows '.
 					'SET vatid=0 '.
 					'WHERE vatid='.$this->mId
