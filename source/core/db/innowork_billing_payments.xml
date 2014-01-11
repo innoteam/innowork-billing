@@ -1,0 +1,14 @@
+<?xml version='1.0'?>
+<database>
+
+    <table name="innowork_billing_payments">
+        <field	name="id"   type="integer"  notnull="1"/>
+        <field  name="description"  type="string" length="40" notnull="1"/>
+        <field  name="days"   type="integer" notnull="1"/>
+        <field  name="monthend" type="boolean"/>
+        <key    field="id"  type="unique"/>
+    </table>
+
+    <sequence name="innowork_billing_payments_id_seq"/>
+
+</database>

@@ -1,0 +1,54 @@
+General information
+-------------------
+
+Innowork Billing is a Innowork Intranet series application. It is designed for simple
+billing.
+
+
+
+License
+-------
+See the file named LICENSE.
+
+
+
+Requirements
+------------
+
+Serverside:
+	a working Innomatic platform installation.
+
+Clientside:
+	a web browser with HTML 4.0 and CSS support.
+
+
+
+Installation
+------------
+
+See the file named INSTALL.
+
+
+
+Additional Information
+----------------------
+
+Innomatic official home page:
+	http://www.innomatic.org
+
+Innowork Billing official home page:
+	http://www.innoteam.it
+
+To submit a bug report:
+	send an email to helpdesk@innoteam.it
+
+To submit a support request:
+	send an email to helpdesk@innoteam.it
+
+
+
+Disclaimer
+----------
+
+There is no warranty, expressed or implied, associated with this product.
+Use at your own risk.
