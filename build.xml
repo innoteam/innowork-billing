@@ -4,14 +4,14 @@
 
    Innowork-Billing build file
 
-   Copyright (c) 2003-2013 Innoteam S.r.l. All rights reserved.
+   Copyright (c) 2003-2014 Innoteam Srl All rights reserved.
 
   =======================================================================
 -->
 <project name="Innowork Billing" default="package">
 
 	<property name="name" value="innowork-billing" />
-	<property name="version" value="1.4" />
+	<property name="version" value="1.4.0" />
 
 	<target name="sources">
 		<tar destfile="${basedir}/build/${name}-src-${version}.tgz" compression="gzip">
