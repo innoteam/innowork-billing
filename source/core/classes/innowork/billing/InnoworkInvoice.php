@@ -9,6 +9,7 @@ class InnoworkInvoice extends InnoworkItem
     var $mNewDispatcher = 'view';
     var $mNewEvent = 'newinvoice';
     var $mNoAcl = true;
+    var $mTypeTags = array('invoice');
     //var $mNoLog = true;
     var $mNoTrash = false;
     var $mConvertible = true;

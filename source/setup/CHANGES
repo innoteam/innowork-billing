@@ -1,3 +1,11 @@
+2.x.x
+------------------
+NEW FEATURES:
+- Added "invoice" type tag. (Alex Pgnoni)
+
+CHANGES:
+- Updated minimum Innowork Core version to 3.3.0. (Alex Pagnoni
+
 2.0.0 - 2014/01/11
 ------------------
 CHANGES:
