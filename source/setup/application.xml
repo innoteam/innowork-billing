@@ -13,7 +13,7 @@
 		<iconfile></iconfile>
 		<dependencies>
 			<dependency>innomatic[6.1]</dependency>
-			<dependency>innowork-core[3.1]</dependency>
+			<dependency>innowork-core[3.3]</dependency>
 			<dependency>innowork-groupware[2.0]</dependency>
 			<dependency>rhtemplatelib</dependency>
 			<suggestion>htmlmimemaillib[1.38-1]</suggestion>
