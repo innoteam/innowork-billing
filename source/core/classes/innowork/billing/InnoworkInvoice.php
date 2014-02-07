@@ -33,9 +33,10 @@ class InnoworkInvoice extends InnoworkItem
         $this->mKeys['projectid'] = 'table:innowork_projects:name:integer';
         $this->mKeys['emissiondate'] = 'timestamp';
         $this->mKeys['duedate'] = 'timestamp';
-        $this->mKeys['amount'] = 'text';
-        $this->mKeys['total'] = 'text';
-        $this->mKeys['paidamount'] = 'text';
+        $this->mKeys['amount'] = 'decimal';
+        $this->mKeys['total'] = 'decimal';
+        $this->mKeys['paidamount'] = 'decimal';
+        $this->mKeys['vat'] = 'decimal';
         $this->mKeys['accountmanager'] = 'text';
 
         $this->mSearchResultKeys[] = 'number';

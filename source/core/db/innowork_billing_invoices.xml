@@ -10,10 +10,10 @@
         <field  name="paymentid" type="integer" notnull="1"/>
         <field  name="emissiondate" type="timestamp"/>
         <field  name="duedate"  type="timestamp"/>
-        <field  name="amount"   type="text"/>
-        <field  name="vat"  type="text"/>
-        <field  name="total"    type="text"/>
-        <field  name="paidamount"   type="text"/>
+        <field  name="amount"   type="decimal" length="12,2"/>
+        <field  name="vat"  type="decimal" length="10,2"/>
+        <field  name="total"    type="decimal" length="10,2"/>
+        <field  name="paidamount"   type="decimal" length="12,2"/>
         <field  name="trashed"  type="boolean"/>
         <field name="accountmanager" type="text"/>
         <key    field="id"  type="unique"/>
