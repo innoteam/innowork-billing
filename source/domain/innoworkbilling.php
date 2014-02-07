@@ -1687,15 +1687,9 @@ $users_query->Free();
             </label>
             <string><name>vat</name>
               <args>
-                <size>10</size>
+                <size>16</size>
                 <readonly>true</readonly>
-                <value type="encoded">'.urlencode(
-                    number_format(
-                        $inv_data['amount'],
-                        $locale_country->FractDigits(),
-                        $locale_country->MoneyDecimalSeparator(),
-                        $locale_country->MoneyThousandsSeparator()
-                    ) ).'</value>
+                <value>'.WuiXml::cdata($locale_country->formatMoney($inv_data['amount'])).'</value>
               </args>
             </string>
 
@@ -1706,15 +1700,9 @@ $users_query->Free();
             </label>
             <string><name>vat</name>
               <args>
-                <size>10</size>
+                <size>16</size>
                 <readonly>true</readonly>
-                <value type="encoded">'.urlencode(
-                    number_format(
-                        $inv_data['vat'],
-                        $locale_country->FractDigits(),
-                        $locale_country->MoneyDecimalSeparator(),
-                        $locale_country->MoneyThousandsSeparator()
-                    ) ).'</value>
+                <value>'.WuiXml::cdata($locale_country->formatMoney($inv_data['vat'])).'</value>
               </args>
             </string>
 
@@ -1725,15 +1713,9 @@ $users_query->Free();
             </label>
             <string><name>total</name>
               <args>
-                <size>10</size>
+                <size>16</size>
                 <readonly>true</readonly>
-                <value type="encoded">'.urlencode(
-                    number_format(
-                        $inv_data['total'],
-                        $locale_country->FractDigits(),
-                        $locale_country->MoneyDecimalSeparator(),
-                        $locale_country->MoneyThousandsSeparator()
-                    ) ).'</value>
+                <value>'.WuiXml::cdata($locale_country->formatMoney($inv_data['total'])).'</value>
               </args>
             </string>
 
@@ -1914,7 +1896,7 @@ $users_query->Free();
 </combobox>
 <label row="'.$row.'" col="5" halign="right">
   <args>
-   <label type="encoded">'.urlencode( $row_data['total'] ).'</label>
+   <label>'.WuiXml::cdata($locale_country->formatMoney($row_data['total'])).'</label>
   </args>
 </label>
 <innomatictoolbar row="'.$row.'" col="6"><name>tools</name>
