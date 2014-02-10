@@ -1851,7 +1851,7 @@ $users_query->Free();
     {
         $vats[$vats_query->getFields( 'id' )] = $vats_query->getFields( 'vat' );
         $vats_perc[$vats_query->getFields( 'id' )] = $vats_query->getFields( 'percentual' );
-        $vats_query->MoveNext();
+        $vats_query->moveNext();
     }
 
     $row = 0;
