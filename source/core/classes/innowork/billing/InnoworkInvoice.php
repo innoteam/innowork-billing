@@ -498,11 +498,13 @@ require_once('innomatic/locale/LocaleCountry.php');
                         $locale_country->fractDigits()
                     );
                     
-                    // No name and description
-                    $vat_name = $vat_description = '';
-                } else {
                     $vat_name = $vats[$rows_query->getFields('vatid')]['name'];
                     $vat_description = $vats[$rows_query->getFields('vatid')]['description'];
+                    $vat_percentual = $vats[$rows_query->getFields('vatid')]['percentual'];
+                } else {
+                    // No name and description
+                    $vat_name = $vat_description = '';
+                    $vat_percentual = 0;
                 }
 
                 $result[] = array(
@@ -525,6 +527,7 @@ require_once('innomatic/locale/LocaleCountry.php');
                     'vatid' => $rows_query->getFields( 'vatid' ),
                     'vatname' => $vat_name,
                     'vatdescription' => $vat_description,
+                    'vatpercentual' => $vat_percentual,
                     'vat' => number_format(
                         $vat,
                         $locale_country->FractDigits(),
@@ -594,11 +597,12 @@ require_once('innomatic/locale/LocaleCountry.php');
         );
 
         $vats = array();
-        while ( !$vats_query->eof )
-        {
+        $row = 0;
+        while (!$vats_query->eof) {
             $vats[$vats_query->getFields( 'id' )] = array('percentual' => $vats_query->getFields( 'percentual' ),
                 'name' => $vats_query->getFields( 'vat' ),
-                'description' => $vats_query->getFields( 'description' ));
+                'description' => $vats_query->getFields( 'description' ),
+            'row' => $row++);
             $vats_query->MoveNext();
         }
 
@@ -609,25 +613,19 @@ require_once('innomatic/locale/LocaleCountry.php');
 
             $tmp_row_amount = ( ( $rows_query->getFields( 'amount' ) - ( $rows_query->getFields( 'amount' ) * $rows_query->getFields( 'discount' ) / 100 ) ) * $quantity );
 
-            if (
-            $rows_query->getFields( 'vatid' ) != 0
-            and
-            isset( $vats[$rows_query->getFields( 'vatid' )] )
-            )
-            {
+            if ($rows_query->getFields('vatid') != 0 and isset($vats[$rows_query->getFields( 'vatid' )])) {
                 $vat = round(
                     $tmp_row_amount * $vats[$rows_query->getFields( 'vatid' )]['percentual'] / 100,
                     $locale_country->fractDigits()
                 );
             }
 
-            if (isset($result[$rows_query->getFields('vatid')])) {
-                $result[$rows_query->getFields('vatid')]['totalamount'] += $tmp_row_amount;
-                $result[$rows_query->getFields('vatid')]['vat'] += $vat;
-                $result[$rows_query->getFields('vatid')]['total'] += $tmp_row_amount + $vat;
-                
+            if (isset($result[$vats[$rows_query->getFields('vatid')]['row']])) {
+                $result[$vats[$rows_query->getFields('vatid')]['row']]['totalamount'] += $tmp_row_amount;
+                $result[$vats[$rows_query->getFields('vatid')]['row']]['vat'] += $vat;
+                $result[$vats[$rows_query->getFields('vatid')]['row']]['total'] += $tmp_row_amount + $vat;
             } else {
-                $result[$rows_query->getFields('vatid')] = array(
+                $result[$vats[$rows_query->getFields('vatid')]['row']] = array(
                     'totalamount' => $tmp_row_amount,
                     'vat' => $vat,
                     'total' => $tmp_row_amount + $vat,
@@ -972,8 +970,8 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         $template->Parse( 'invoice' );
         unset( $inv_rows['amount'] );
-        $template->Parse_Loop( 'invoice', 'rows', $inv_rows );
         $template->Parse_Loop( 'invoice', 'vats', $inv_vats );
+        $template->Parse_Loop( 'invoice', 'rows', $inv_rows );
 
         return $template->Return_File( 'invoice' );
     }
