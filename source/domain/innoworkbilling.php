@@ -1635,11 +1635,11 @@ function main_showinvoice($eventData)
               </args>
               <children>';
     
-    $row_list = $xen_invoice->GetRows();
+    $row_list = $xen_invoice->getRows();
     
-    $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
+    $vats_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
         ->getDataAccess()
-        ->Execute('SELECT * ' . 'FROM innowork_billing_vat_codes ' . 'ORDER BY vat');
+        ->execute('SELECT * FROM innowork_billing_vat_codes ORDER BY vat');
     
     $vats['0'] = $gLocale->GetStr('novat.label');
     $vats_perc = array();
