@@ -448,7 +448,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         return $result;
     }
 
-    function GetRows()
+    public function getRows()
     {
         $result = array();
 
@@ -458,22 +458,24 @@ require_once('innomatic/locale/LocaleCountry.php');
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
                 );
 
-            $rows_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $rows_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT * '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId.' '.
                 'ORDER BY id'
                 );
 
-            $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
-                'SELECT id,percentual '.
+            $vats_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
+                'SELECT id,vat,percentual,description '.
                 'FROM innowork_billing_vat_codes '
                 );
 
             $vats = array();
             while ( !$vats_query->eof )
             {
-                $vats[$vats_query->getFields( 'id' )] = $vats_query->getFields( 'percentual' );
+                $vats[$vats_query->getFields( 'id' )] = array('percentual' => $vats_query->getFields( 'percentual' ),
+                'name' => $vats_query->getFields( 'vat' ),
+                'description' => $vats_query->getFields( 'description' ));
                 $vats_query->MoveNext();
             }
 
@@ -492,9 +494,15 @@ require_once('innomatic/locale/LocaleCountry.php');
                     )
                 {
                     $vat = round(
-                        $tmp_row_amount  * $vats[$rows_query->getFields( 'vatid' )] / 100,
-                        $locale_country->FractDigits()
+                        $tmp_row_amount  * $vats[$rows_query->getFields( 'vatid' )]['percentual'] / 100,
+                        $locale_country->fractDigits()
                     );
+                    
+                    // No name and description
+                    $vat_name = $vat_description = '';
+                } else {
+                    $vat_name = $vats[$rows_query->getFields('vatid')]['name'];
+                    $vat_description = $vats[$rows_query->getFields('vatid')]['description'];
                 }
 
                 $result[] = array(
@@ -515,6 +523,8 @@ require_once('innomatic/locale/LocaleCountry.php');
 					'quantity' => $quantity,
 					'discount' => $rows_query->getFields( 'discount' ),
                     'vatid' => $rows_query->getFields( 'vatid' ),
+                    'vatname' => $vat_name,
+                    'vatdescription' => $vat_description,
                     'vat' => number_format(
                         $vat,
                         $locale_country->FractDigits(),
@@ -559,6 +569,118 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         return $result;
     }
+    
+    public function getVats()
+    {
+        if ( !$this->mItemId ) {
+            return array();
+        }
+        
+        $result = array();
+        
+        $locale_country = new LocaleCountry(
+            \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
+        );
+
+        $rows_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
+            'SELECT * '.
+            'FROM innowork_billing_invoices_rows '.
+            'WHERE invoiceid='.$this->mItemId.' '.
+            'ORDER BY id'
+        );
+
+        $vats_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->execute(
+            'SELECT co.* FROM innowork_billing_vat_codes AS co JOIN innowork_billing_invoices_rows AS ro on ro.vatid=co.id GROUP BY co.id ORDER BY co.vat'
+        );
+
+        $vats = array();
+        while ( !$vats_query->eof )
+        {
+            $vats[$vats_query->getFields( 'id' )] = array('percentual' => $vats_query->getFields( 'percentual' ),
+                'name' => $vats_query->getFields( 'vat' ),
+                'description' => $vats_query->getFields( 'description' ));
+            $vats_query->MoveNext();
+        }
+
+        while ( !$rows_query->eof ) {
+            $vat = 0;
+            $quantity = $rows_query->getFields( 'quantity' );
+            if ( !(int)$quantity ) $quantity = 1;
+
+            $tmp_row_amount = ( ( $rows_query->getFields( 'amount' ) - ( $rows_query->getFields( 'amount' ) * $rows_query->getFields( 'discount' ) / 100 ) ) * $quantity );
+
+            if (
+            $rows_query->getFields( 'vatid' ) != 0
+            and
+            isset( $vats[$rows_query->getFields( 'vatid' )] )
+            )
+            {
+                $vat = round(
+                    $tmp_row_amount * $vats[$rows_query->getFields( 'vatid' )]['percentual'] / 100,
+                    $locale_country->fractDigits()
+                );
+            }
+
+            if (isset($result[$rows_query->getFields('vatid')])) {
+                $result[$rows_query->getFields('vatid')]['totalamount'] += $tmp_row_amount;
+                $result[$rows_query->getFields('vatid')]['vat'] += $vat;
+                $result[$rows_query->getFields('vatid')]['total'] += $tmp_row_amount + $vat;
+                
+            } else {
+                $result[$rows_query->getFields('vatid')] = array(
+                    'totalamount' => $tmp_row_amount,
+                    'vat' => $vat,
+                    'total' => $tmp_row_amount + $vat,
+                    'vatname' => $vats[$rows_query->getFields('vatid')]['name'],
+                    'vatdescription' => $vats[$rows_query->getFields('vatid')]['description'],
+                    'vatpercentual' => $vats[$rows_query->getFields('vatid')]['percentual']
+                );
+            }
+
+            $rows_query->MoveNext();
+        }
+        
+        foreach ($result as $id => $result_row) {
+            $result[$id]['unf_totalamount'] = number_format(
+                $result[$id]['totalamount'],
+                $locale_country->FractDigits(),
+                $locale_country->MoneyDecimalSeparator(),
+                ''
+                );
+            $result[$id]['unf_vat'] = number_format(
+                $result[$id]['vat'],
+                $locale_country->FractDigits(),
+                $locale_country->MoneyDecimalSeparator(),
+                ''
+                );
+            $result[$id]['unf_total'] = number_format(
+                $result[$id]['total'],
+                $locale_country->FractDigits(),
+                $locale_country->MoneyDecimalSeparator(),
+                ''
+                );
+            $result[$id]['totalamount'] = number_format(
+                $result[$id]['totalamount'],
+                $locale_country->FractDigits(),
+                $locale_country->MoneyDecimalSeparator(),
+                $locale_country->MoneyThousandsSeparator()
+                );
+            $result[$id]['vat'] = number_format(
+                $result[$id]['vat'],
+                $locale_country->FractDigits(),
+                $locale_country->MoneyDecimalSeparator(),
+                $locale_country->MoneyThousandsSeparator()
+                );
+            $result[$id]['total'] = number_format(
+                $result[$id]['total'],
+                $locale_country->FractDigits(),
+                $locale_country->MoneyDecimalSeparator(),
+                $locale_country->MoneyThousandsSeparator()
+                );
+        } 
+
+        return $result;
+    }
 
     function CalculateInvoiceTotals()
     {
@@ -574,7 +696,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 
             $vats = array();
 
-            $vats_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $vats_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT id,percentual '.
                 'FROM innowork_billing_vat_codes'
                 );
@@ -586,7 +708,7 @@ require_once('innomatic/locale/LocaleCountry.php');
                 $vats_query->MoveNext();
             }
 
-            $rows_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $rows_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT amount,quantity,discount,vatid '.
                 'FROM innowork_billing_invoices_rows '.
                 'WHERE invoiceid='.$this->mItemId
@@ -642,7 +764,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         if ( $this->mItemId )
         {
-            $query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
+            $query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'SELECT amount,vat,total '.
                 'FROM innowork_billing_invoices '.
                 'WHERE id='.$this->mItemId
@@ -733,7 +855,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         return true;
     }
 
-    function GetLastInvoiceNumber()
+    public function getLastInvoiceNumber()
     {
         require_once('innomatic/domain/DomainSettings.php');
 
@@ -745,7 +867,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         return $result;
     }
 
-    function CreateHtmlInvoice()
+    public function createHtmlInvoice()
     {
     	require_once 'rhtemplate/RHTemplate.php';
         require_once('innomatic/locale/LocaleCatalog.php');
@@ -767,9 +889,9 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         // Invoice data
 
-        $inv_data = $this->GetItem();
-        $inv_rows = $this->GetRows();
-        //print_r($inv_data);
+        $inv_data = $this->getItem();
+        $inv_rows = $this->getRows();
+        $inv_vats = $this->getVats();
 
         require_once 'innowork/billing/InnoworkBillingPayment.php';
         $payment = new InnoworkBillingPayment( $inv_data['paymentid'] );
@@ -851,6 +973,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         $template->Parse( 'invoice' );
         unset( $inv_rows['amount'] );
         $template->Parse_Loop( 'invoice', 'rows', $inv_rows );
+        $template->Parse_Loop( 'invoice', 'vats', $inv_vats );
 
         return $template->Return_File( 'invoice' );
     }
