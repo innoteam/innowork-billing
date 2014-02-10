@@ -2,9 +2,12 @@
 ------------------
 NEW FEATURES:
 - Added "invoice" type tag. (Alex Pgnoni)
+- VAT description fields (Alex Pagnoni)
 
 CHANGES:
 - Updated minimum Innowork Core version to 3.3.0. (Alex Pagnoni
+
+
 
 2.0.0 - 2014/01/11
 ------------------
