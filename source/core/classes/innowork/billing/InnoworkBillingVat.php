@@ -43,7 +43,7 @@ class InnoworkBillingVat
             
             if ($domain_da->Execute('INSERT INTO innowork_billing_vat_codes VALUES (' . $id . ',' . 
                 $domain_da->formatText($name) . ','.
-                $domain_da->formatText($description) . ',' . $domain_da->formatText($percentual) . ')')) {
+                $domain_da->formatText($percentual) . ',' . $domain_da->formatText($description) . ')')) {
                 $this->mId = $id;
                 $this->mName = $name;
                 $this->mDescription = $description;
