@@ -1,4 +1,5 @@
 <?php
+namespace Innowork\Billing;
 
 class InnoworkBillingVat
 {
@@ -133,7 +134,7 @@ class InnoworkBillingVat
                 ->getDataAccess()
                 ->Execute('UPDATE innowork_billing_invoices_rows ' . 'SET vatid=0 ' . 'WHERE vatid=' . $this->mId);
             
-            $sets = new InnoworkBillingSettingsHandler();
+            $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
             
             if ($sets->GetDefaultVat() == $this->mId) {
                 $sets->SetDefaultVat('0');

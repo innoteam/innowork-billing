@@ -1,4 +1,5 @@
 <?php
+namespace Innowork\Billing;
 
 class InnoworkBillingSettingsHandler
 {

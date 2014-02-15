@@ -1,9 +1,9 @@
 <?php
+namespace Innowork\Billing;
 
-require_once('innowork/core/InnoworkCore.php');
 require_once('innowork/core/InnoworkItem.php');
 
-class InnoworkInvoice extends InnoworkItem
+class InnoworkInvoice extends \Innowork\Core\InnoworkItem
 {
     var $mTable = 'innowork_billing_invoices';
     var $mNewDispatcher = 'view';
@@ -15,7 +15,7 @@ class InnoworkInvoice extends InnoworkItem
     var $mConvertible = true;
     const ITEM_TYPE = 'invoice';
 
-    function InnoworkInvoice(
+    public function __construct(
         $rampDb,
         $rsiteDb,
         $invoiceId = 0
@@ -91,9 +91,7 @@ class InnoworkInvoice extends InnoworkItem
 
             $key_pre = $value_pre = $keys = $values = '';
 
-            require_once('innomatic/locale/LocaleCatalog.php');
-			require_once('innomatic/locale/LocaleCountry.php');
-            $country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
+            $country = new \Innomatic\Locale\LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
 
             while ( list( $key, $val ) = each( $params ) )
             {
@@ -168,7 +166,7 @@ class InnoworkInvoice extends InnoworkItem
                 $start = 1;
                 $update_str = '';
 
-                $country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
+                $country = new \Innomatic\Locale\LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry() );
 
                 while ( list( $field, $value ) = each( $params ) )
                 {
@@ -286,9 +284,7 @@ class InnoworkInvoice extends InnoworkItem
 
         if ( $this->mItemId )
         {
-            require_once('innomatic/locale/LocaleCatalog.php');
-require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new \Innomatic\Locale\LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
             $amount = number_format(
@@ -381,9 +377,7 @@ require_once('innomatic/locale/LocaleCountry.php');
             $rowId
             )
         {
-            require_once('innomatic/locale/LocaleCatalog.php');
-require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new \Innomatic\Locale\LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
             $amount = number_format(
@@ -454,7 +448,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         if ( $this->mItemId )
         {
-            $locale_country = new LocaleCountry(
+            $locale_country = new \Innomatic\Locale\LocaleCountry(
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
                 );
 
@@ -581,7 +575,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         
         $result = array();
         
-        $locale_country = new LocaleCountry(
+        $locale_country = new \Innomatic\Locale\LocaleCountry(
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
         );
 
@@ -686,9 +680,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         if ( $this->mItemId )
         {
-            require_once('innomatic/locale/LocaleCatalog.php');
-require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new \Innomatic\Locale\LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $result['amount'] = $result['vat'] = $result['total'] = 0;
 
@@ -811,9 +803,7 @@ require_once('innomatic/locale/LocaleCountry.php');
 
         if ( $this->mItemId )
         {
-            require_once('innomatic/locale/LocaleCatalog.php');
-require_once('innomatic/locale/LocaleCountry.php');
-            $locale_country = new LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
+            $locale_country = new \Innomatic\Locale\LocaleCountry( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry() );
 
             $amount = str_replace( ',', '.', $amount );
 
@@ -868,17 +858,14 @@ require_once('innomatic/locale/LocaleCountry.php');
     public function createHtmlInvoice()
     {
     	require_once 'rhtemplate/RHTemplate.php';
-        require_once('innomatic/locale/LocaleCatalog.php');
-		require_once('innomatic/locale/LocaleCountry.php');
 		require_once('innowork/projects/InnoworkProject.php');
 		require_once('innowork/groupware/InnoworkCompany.php');
 
-        $locale_country = new LocaleCountry(
+        $locale_country = new \Innomatic\Locale\LocaleCountry(
             \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry()
             );
 
-        require_once 'innowork/billing/InnoworkBillingSettingsHandler.php';
-        $sets = new InnoworkBillingSettingsHandler();
+        $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
 
         $template = new Rh_Template();
         $template->files['invoice'] = $sets->GetInvoiceTemplate();
@@ -891,8 +878,7 @@ require_once('innomatic/locale/LocaleCountry.php');
         $inv_rows = $this->getRows();
         $inv_vats = $this->getVats();
 
-        require_once 'innowork/billing/InnoworkBillingPayment.php';
-        $payment = new InnoworkBillingPayment( $inv_data['paymentid'] );
+        $payment = new \Innowork\Billing\InnoworkBillingPayment( $inv_data['paymentid'] );
 
         $template->Register( 'invoice', 'tpl_invoice_number', $inv_data['number'] );
         $template->Register( 'invoice', 'tpl_invoice_emissiondate', $locale_country->FormatShortArrayDate(
@@ -1023,12 +1009,10 @@ require_once('innomatic/locale/LocaleCountry.php');
                 {
                 	require_once 'htmlmimemail/HTMLMimeMail.php';
                 	require_once 'smtpsend/SMTPSend.php';
-                    require_once('innomatic/locale/LocaleCatalog.php');
-					require_once('innomatic/locale/LocaleCountry.php');
 
-                    $sets = new InnoworkBillingSettingsHandler();
+                    $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
 
-                    $locale = new LocaleCatalog(
+                    $locale = new \Innomatic\Locale\LocaleCatalog(
                         'innowork-billing::misc',
                         \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getLanguage()
                         );

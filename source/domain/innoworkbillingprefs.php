@@ -1,19 +1,12 @@
 <?php
-require_once ('innowork/billing/InnoworkInvoice.php');
-require_once 'innowork/billing/InnoworkBillingVat.php';
-require_once 'innowork/billing/InnoworkBillingPayment.php';
-require_once 'innowork/billing/InnoworkBillingSettingsHandler.php';
 
 require_once 'innomatic/wui/Wui.php';
-require_once 'innowork/core/InnoworkCore.php';
-require_once ('innomatic/locale/LocaleCatalog.php');
-require_once ('innomatic/locale/LocaleCountry.php');
 
 global $gLocale, $gPage_title, $gXml_def, $gPage_status;
 
-$gInnowork_core = InnoworkCore::instance('innoworkcore', \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(), \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+$gInnowork_core = \Innowork\Core\InnoworkCore::instance('\Innowork\Core\InnoworkCore', \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getDataAccess(), \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
 
-$gLocale = new LocaleCatalog('innowork-billing::prefs', \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage());
+$gLocale = new \Innomatic\Locale\LocaleCatalog('innowork-billing::prefs', \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage());
 
 $gWui = Wui::instance('wui');
 $gWui->loadAllWidgets();
@@ -115,7 +108,7 @@ function action_newvat($eventData)
 {
     global $gPage_status, $gLocale;
     
-    $xen_vat = new InnoworkBillingVat();
+    $xen_vat = new \Innowork\Billing\InnoworkBillingVat();
     if ($xen_vat->Create($eventData['vat'], $eventData['percentual'], $eventData['description'])) {
         $gPage_status = $gLocale->getStr('vat_added.status');
     }
@@ -127,7 +120,7 @@ function action_editvat($eventData)
 {
     global $gPage_status, $gLocale;
     
-    $xen_vat = new InnoworkBillingVat($eventData['id']);
+    $xen_vat = new \Innowork\Billing\InnoworkBillingVat($eventData['id']);
     
     $xen_vat->setName($eventData['vat']);
     $xen_vat->setDescription($eventData['description']);
@@ -142,7 +135,7 @@ function action_removevat($eventData)
 {
     global $gPage_status, $gLocale;
     
-    $xen_vat = new InnoworkBillingVat($eventData['id']);
+    $xen_vat = new \Innowork\Billing\InnoworkBillingVat($eventData['id']);
     if ($xen_vat->Remove()) {
         $gPage_status = $gLocale->getStr('vat_removed.status');
     }
@@ -156,7 +149,7 @@ function action_newpayment($eventData)
 {
     global $gPage_status, $gLocale;
     
-    $xen_payment = new InnoworkBillingPayment();
+    $xen_payment = new \Innowork\Billing\InnoworkBillingPayment();
     if ($xen_payment->Create($eventData['description'], $eventData['days'], isset($eventData['monthend']) and $eventData['monthend'] == 'on' ? true : false)) {
         $gPage_status = $gLocale->getStr('payment_added.status');
     }
@@ -168,7 +161,7 @@ function action_editpayment($eventData)
 {
     global $gPage_status, $gLocale;
     
-    $xen_payment = new InnoworkBillingPayment($eventData['id']);
+    $xen_payment = new \Innowork\Billing\InnoworkBillingPayment($eventData['id']);
     
     $xen_payment->SetDescription($eventData['description']);
     $xen_payment->SetDays($eventData['days']);
@@ -183,7 +176,7 @@ function action_removepayment($eventData)
 {
     global $gPage_status, $gLocale;
     
-    $xen_payment = new InnoworkBillingPayment($eventData['id']);
+    $xen_payment = new \Innowork\Billing\InnoworkBillingPayment($eventData['id']);
     if ($xen_payment->Remove()) {
         $gPage_status = $gLocale->getStr('payment_removed.status');
     }
@@ -195,7 +188,7 @@ function action_setgeneral($eventData)
 {
     global $gLocale, $gPage_status;
     
-    $sets = new InnoworkBillingSettingsHandler();
+    $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
     $sets->SetEmail($eventData['email']);
     $sets->SetSmtpServer($eventData['smtpserver']);
     
@@ -208,7 +201,7 @@ function action_setdefaults($eventData)
 {
     global $gLocale, $gPage_status;
     
-    $sets = new InnoworkBillingSettingsHandler();
+    $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
     $sets->SetDefaultPayment($eventData['paymentid']);
     $sets->SetDefaultVat($eventData['vatid']);
     
@@ -221,7 +214,7 @@ function action_settemplates($eventData)
 {
     global $gLocale, $gPage_status;
     
-    $sets = new InnoworkBillingSettingsHandler();
+    $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
     
     if (is_uploaded_file($eventData['invoice_template']['tmp_name'])) {
         if ($fh = fopen($eventData['invoice_template']['tmp_name'], 'r')) {
@@ -885,7 +878,7 @@ function main_settings($eventData)
     $tabs[1]['label'] = $gLocale->getStr('defaults_settings.tab');
     $tabs[2]['label'] = $gLocale->getStr('templates_settings.tab');
     
-    $sets = new InnoworkBillingSettingsHandler();
+    $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
     
     $vats_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
         ->getDataAccess()
