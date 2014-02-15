@@ -269,7 +269,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         return $result;
     }
 
-    function AddRow(
+    public function addRow(
         $description,
         $amount,
         $vatId,
@@ -846,7 +846,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         return true;
     }
 
-    public function getLastInvoiceNumber()
+    public static function getLastInvoiceNumber()
     {
         require_once('innomatic/domain/DomainSettings.php');
 

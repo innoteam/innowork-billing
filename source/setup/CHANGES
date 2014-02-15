@@ -8,6 +8,7 @@ NEW FEATURES:
 CHANGES:
 - Updated minimum Innowork Core version to 3.3.0. (Alex Pagnoni)
 - Updated code with namespaces. (Alex Pagnoni)
+- Quantity is now decimal. (Alex Pagnoni)
 
 
 
