@@ -9,6 +9,8 @@
         <field  name="vatid"  type="integer"/>
         <field  name="quantity"  type="integer" default="1"/>
         <field  name="discount"  type="integer" default="0"/>
+        <field  name="rowcounter"   type="integer"/>
+
         <key    field="id"  type="unique"/>
     </table>
 

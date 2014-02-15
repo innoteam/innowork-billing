@@ -274,7 +274,8 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $amount,
         $vatId,
         $quantity,
-        $discount
+        $discount,
+        $rowCounter = ''
         )
     {
         $result = false;
@@ -297,17 +298,19 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
             $id = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_invoices_rows_id_seq' );
 
             if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
-                'INSERT INTO innowork_billing_invoices_rows (id, invoiceid, description, amount, quantity, discount, vatid ) '.
+                'INSERT INTO innowork_billing_invoices_rows (id, invoiceid, description, amount, quantity, discount, vatid, rowcounter) '.
                 'VALUES ('.$id.','.
                 $this->mItemId.','.
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).','.
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$quantity ).','.
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$discount ).','.
-                $vatId.')' ) )
+                $vatId.','.
+                $rowCounter.
+                ')' ) )
             {
-                $this->SetInvoiceTotals(
-                    $this->CalculateInvoiceTotals()
+                $this->setInvoiceTotals(
+                    $this->calculateInvoiceTotals()
                     );
 
                 $result = true;
@@ -317,7 +320,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         return $result;
     }
 
-    function GetRow(
+    function getRow(
         $rowId
         )
     {
@@ -348,7 +351,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
                 $result['amount'] = $query->getFields( 'amount' );
                 $result['quantity'] = $query->getFields( 'quantity' );
                 $result['discount'] = $query->getFields( 'discount' );
-
+                $result['rowcounter'] = $query->getFields( 'rowcounter' );
             }
         }
 
