@@ -294,6 +294,8 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
                 '.',
                 ''
                 );
+            
+            $quantity = str_replace( ',', '.', $quantity );
 
             $id = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->getNextSequenceValue( 'innowork_billing_invoices_rows_id_seq' );
 
@@ -303,7 +305,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
                 $this->mItemId.','.
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).','.
-                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$quantity ).','.
+                \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $quantity ).','.
                 \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$discount ).','.
                 $vatId.','.
                 $rowCounter.
@@ -320,7 +322,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         return $result;
     }
 
-    function getRow(
+    public function getRow(
         $rowId
         )
     {
@@ -358,7 +360,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         return $result;
     }
 
-    function EditRow(
+    public function editRow(
         $rowId,
         $description,
         $amount,
@@ -390,13 +392,15 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
                 ''
                 );
 
+            $quantity = str_replace( ',', '.', $quantity );
+            
             $old_row = $this->GetRow( $rowId );
 
             if ( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->Execute(
                 'UPDATE innowork_billing_invoices_rows SET '.
                 'description='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $description ).','.
                 'amount='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $amount ).','.
-                'quantity='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$quantity ).','.
+                'quantity='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( $quantity ).','.
                 'discount='.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->formatText( (int)$discount ).','.
                 'vatid='.$vatId.' '.
                 'WHERE id='.$rowId.' '.
