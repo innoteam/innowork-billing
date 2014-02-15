@@ -4,19 +4,19 @@ namespace Innowork\Billing;
 class InnoworkBillingSettingsHandler
 {
 
-    public static function GetDefaultVat()
+    public static function getDefaultVat()
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->GetKey('innoworkbilling-default-vat');
     }
 
-    public static function SetDefaultVat($defaultVat)
+    public static function setDefaultVat($defaultVat)
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->SetKey('innoworkbilling-default-vat', $defaultVat);
     }
 
-    public static function GetDefaultPayment()
+    public static function getDefaultPayment()
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->GetKey('innoworkbilling-default-payment');
@@ -28,7 +28,7 @@ class InnoworkBillingSettingsHandler
         return $sets->SetKey('innoworkbilling-default-payment', $defaultPayment);
     }
 
-    public static function GetInvoiceTemplate()
+    public static function getInvoiceTemplate()
     {
         $result = '';
         
@@ -46,7 +46,7 @@ class InnoworkBillingSettingsHandler
         return $result;
     }
 
-    public static function SetInvoiceTemplate($invoiceTemplateContent)
+    public static function setInvoiceTemplate($invoiceTemplateContent)
     {
         $result = false;
         
@@ -59,37 +59,37 @@ class InnoworkBillingSettingsHandler
         return $result;
     }
 
-    public static function GetNotifiesEmail()
+    public static function getNotifiesEmail()
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->GetKey('innoworkbilling-notifies-email');
     }
 
-    public static function SetNotifiesEmail($email)
+    public static function setNotifiesEmail($email)
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->SetKey('innoworkbilling-notifies-email', $email);
     }
 
-    public static function GetEmail()
+    public static function getEmail()
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->GetKey('innoworkbilling-email');
     }
 
-    public static function SetEmail($email)
+    public static function setEmail($email)
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->SetKey('innoworkbilling-email', $email);
     }
 
-    public static function GetSmtpServer()
+    public static function getSmtpServer()
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->GetKey('innoworkbilling-smtp-server');
     }
 
-    public static function SetSmtpServer($server)
+    public static function setSmtpServer($server)
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->SetKey('innoworkbilling-smtp-server', $server);

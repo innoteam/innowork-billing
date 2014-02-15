@@ -148,6 +148,26 @@ class InnoworkBillingVat
         
         return $result;
     }
+    
+    /**
+     * Extracts the list of vat codes.
+     * 
+     * @return array
+     */
+    public static function getVatList()
+    {
+        $query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->execute(
+            'SELECT id,vat FROM innowork_billing_vat_codes ORDER BY vat'
+        );
+        
+        $list = array();
+        while (!$query->eof) {
+            $list[$query->getFields('id')] = $query->getFields('vat');
+            $query->moveNext();
+        }
+        
+        return $list;
+    }
 }
 
 
