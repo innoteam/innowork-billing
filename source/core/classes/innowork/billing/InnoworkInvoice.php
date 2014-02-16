@@ -442,11 +442,11 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         
         $rows_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
             ->getDataAccess()
-            ->Execute('SELECT * ' . 'FROM innowork_billing_invoices_rows ' . 'WHERE invoiceid=' . $this->mItemId . ' ' . 'ORDER BY id');
+            ->Execute('SELECT ro.* FROM innowork_billing_invoices_rows AS ro JOIN innowork_billing_vat_codes AS co on ro.vatid=co.id WHERE invoiceid=' . $this->mItemId . ' ' . 'ORDER BY id');
         
         $vats_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
             ->getDataAccess()
-            ->execute('SELECT co.* FROM innowork_billing_vat_codes AS co JOIN innowork_billing_invoices_rows AS ro on ro.vatid=co.id GROUP BY co.id ORDER BY co.vat');
+            ->execute('SELECT co.* FROM innowork_billing_vat_codes AS co JOIN innowork_billing_invoices_rows AS ro on ro.vatid=co.id WHERE invoiceid=' . $this->mItemId . ' GROUP BY co.id ORDER BY co.vat');
         
         $vats = array();
         $row = 0;
@@ -684,21 +684,21 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $cust_data = $xen_company->GetItem();
         
         $template->Register('invoice', 'tpl_invoice_customer_code', $cust_data['code']);
-        $template->Register('invoice', 'tpl_invoice_customer_name', $cust_data['companyname']);
-        $template->Register('invoice', 'tpl_invoice_customer_street', $cust_data['street']);
-        $template->Register('invoice', 'tpl_invoice_customer_city', $cust_data['city']);
+        $template->Register('invoice', 'tpl_invoice_customer_name', htmlentities($cust_data['companyname']));
+        $template->Register('invoice', 'tpl_invoice_customer_street', htmlentities($cust_data['street']));
+        $template->Register('invoice', 'tpl_invoice_customer_city', htmlentities($cust_data['city']));
         $template->Register('invoice', 'tpl_invoice_customer_zip', $cust_data['zip']);
-        $template->Register('invoice', 'tpl_invoice_customer_state', $cust_data['state']);
-        $template->Register('invoice', 'tpl_invoice_customer_country', $cust_data['country']);
+        $template->Register('invoice', 'tpl_invoice_customer_state', htmlentities($cust_data['state']));
+        $template->Register('invoice', 'tpl_invoice_customer_country', htmlentities($cust_data['country']));
         $template->Register('invoice', 'tpl_invoice_customer_phone', $cust_data['phone']);
         $template->Register('invoice', 'tpl_invoice_customer_fax', $cust_data['fax']);
-        $template->Register('invoice', 'tpl_invoice_customer_email', $cust_data['email']);
-        $template->Register('invoice', 'tpl_invoice_customer_url', $cust_data['url']);
+        $template->Register('invoice', 'tpl_invoice_customer_email', htmlentities($cust_data['email']));
+        $template->Register('invoice', 'tpl_invoice_customer_url', htmlentities($cust_data['url']));
         $template->Register('invoice', 'tpl_invoice_customer_fiscalcode', $cust_data['fiscalcode']);
         $template->Register('invoice', 'tpl_invoice_customer_fiscalcodeb', $cust_data['fiscalcodeb']);
-        $template->Register('invoice', 'tpl_invoice_customer_account_manager', $cust_data['accountmanager']);
-        $template->Register('invoice', 'tpl_invoice_customer_firstname', $cust_data['firstname']);
-        $template->Register('invoice', 'tpl_invoice_customer_lastname', $cust_data['lastname']);
+        $template->Register('invoice', 'tpl_invoice_customer_account_manager', htmlentities($cust_data['accountmanager']));
+        $template->Register('invoice', 'tpl_invoice_customer_firstname', htmlentities($cust_data['firstname']));
+        $template->Register('invoice', 'tpl_invoice_customer_lastname', htmlentities($cust_data['lastname']));
         
         // Project data
         
