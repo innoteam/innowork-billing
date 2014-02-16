@@ -463,8 +463,6 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         while (! $rows_query->eof) {
             $vat = 0;
             $quantity = $rows_query->getFields('quantity');
-            if (! (int) $quantity)
-                $quantity = 1;
             
             $tmp_row_amount = (($rows_query->getFields('amount') - ($rows_query->getFields('amount') * $rows_query->getFields('discount') / 100)) * $quantity);
             
