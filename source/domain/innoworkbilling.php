@@ -709,7 +709,7 @@ function main_default($eventData)
 
 <link><name>customer</name>
   <args>
-    <link type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString($summaries['directorycompany']['adminpage'], array(
+    <link type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString($summaries['directorycompany']['domainpanel'], array(
                         array(
                             $summaries['directorycompany']['showdispatcher'],
                             $summaries['directorycompany']['showevent'],
@@ -725,7 +725,7 @@ function main_default($eventData)
 
 <link><name>project</name>
   <args>
-    <link type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString($summaries['project']['adminpage'], array(
+    <link type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString($summaries['project']['domainpanel'], array(
                         array(
                             $summaries['project']['showdispatcher'],
                             $summaries['project']['showevent'],

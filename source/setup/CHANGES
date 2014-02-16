@@ -14,6 +14,7 @@ CHANGES:
 FIXES:
 - Fixed invoice item type in application.xml. (Alex Pagnoni)
 - Fixed show invoice dispatcher. (Alex Pagnoni)
+- Fixed link to companies/projects. (Alex Pagnoni)
 
 
 
