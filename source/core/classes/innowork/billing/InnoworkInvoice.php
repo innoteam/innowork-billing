@@ -407,9 +407,9 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
                 $result[] = array(
                     'id' => $rows_query->getFields('id'),
                     'description' => $rows_query->getFields('description'),
-                    'amount' => number_format($rows_query->getFields('amount'), $locale_country->FractDigits(), $locale_country->MoneyDecimalSeparator(), $locale_country->MoneyThousandsSeparator()),
-                    'totalamount' => number_format($tmp_row_amount, $locale_country->FractDigits(), $locale_country->MoneyDecimalSeparator(), $locale_country->MoneyThousandsSeparator()),
-                    'quantity' => $quantity,
+                    'amount' => $rows_query->getFields('amount') == 0 ? '' : number_format($rows_query->getFields('amount'), $locale_country->FractDigits(), $locale_country->MoneyDecimalSeparator(), $locale_country->MoneyThousandsSeparator()),
+                    'totalamount' => $tmp_row_amount == 0 ? '' : number_format($tmp_row_amount, $locale_country->FractDigits(), $locale_country->MoneyDecimalSeparator(), $locale_country->MoneyThousandsSeparator()),
+                    'quantity' => $quantity == 0 ? '' : $quantity,
                     'discount' => $rows_query->getFields('discount'),
                     'vatid' => $rows_query->getFields('vatid'),
                     'vatname' => $vat_name,
