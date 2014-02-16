@@ -645,7 +645,6 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
 
     public function createHtmlInvoice()
     {
-        require_once 'rhtemplate/RHTemplate.php';
         require_once ('innowork/projects/InnoworkProject.php');
         require_once ('innowork/groupware/InnoworkCompany.php');
         
@@ -653,7 +652,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         
         $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
         
-        $template = new Rh_Template();
+        $template = new \Rhtemplate\RhTemplate();
         $template->files['invoice'] = $sets->GetInvoiceTemplate();
         
         unset($sets);
