@@ -636,6 +636,14 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         
         return $result;
     }
+    
+    public static function getLastInvoiceDate()
+    {
+        $domain_da = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess();
+        $date_query = $domain_da->execute('SELECT MAX( emissiondate ) AS emissiondate FROM innowork_billing_invoices');
+        $date = $date_query->getFields('emissiondate');
+        return $date;
+    }
 
     public function createHtmlInvoice()
     {
