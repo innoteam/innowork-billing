@@ -201,4 +201,24 @@ class InnoworkBillingPayment
 
 		return $result;
 	}
+	
+	/**
+	 * Extracts the list of payment types.
+	 *
+	 * @return array
+	 */
+	public static function getPaymentList()
+	{
+	    $query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->execute(
+	        'SELECT id,description FROM innowork_billing_payments ORDER BY description'
+	    );
+	
+	    $list = array();
+	    while (!$query->eof) {
+	        $list[$query->getFields('id')] = $query->getFields('description');
+	        $query->moveNext();
+	    }
+	
+	    return $list;
+	}
 }
