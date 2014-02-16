@@ -58,7 +58,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $this->mViewableSearchResultKeys[] = 'paidamount';
         
         $this->mSearchOrderBy = 'emissiondate DESC,number DESC';
-        $this->mShowDispatcher = 'main';
+        $this->mShowDispatcher = 'view';
         $this->mShowEvent = 'showinvoice';
         
         $this->mGenericFields['companyid'] = 'customerid';

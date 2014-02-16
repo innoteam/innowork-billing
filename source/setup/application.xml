@@ -75,7 +75,7 @@
 			category="preferences" themeicon="vcard" themeicontype="mimetypes"
 			catalog="innowork-billing::misc" />
 
-		<innoworkitemtype name="billing" file="billing"
+		<innoworkitemtype name="invoice" file="invoice"
 			catalog="innowork-billing::misc"
 			classfile="innowork/billing/InnoworkInvoice.php" classname="InnoworkInvoice" icon="kspread"
 			icontype="apps" domainpanel="innoworkbilling"

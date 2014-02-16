@@ -11,6 +11,10 @@ CHANGES:
 - Updated code with namespaces. (Alex Pagnoni)
 - Quantity is now decimal. (Alex Pagnoni)
 
+FIXES:
+- Fixed invoice item type in application.xml. (Alex Pagnoni)
+- Fixed show invoice dispatcher. (Alex Pagnoni)
+
 
 
 2.0.0 - 2014/01/11
