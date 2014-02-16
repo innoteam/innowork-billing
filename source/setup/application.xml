@@ -4,8 +4,8 @@
 	<definition>
 		<idname>innowork-billing</idname>
 		<release>
-			<version>2.0.0</version>
-			<date>2014/01/11</date>
+			<version>2.1.0</version>
+			<date>2014/02/16</date>
 			<changesfile>CHANGES</changesfile>
 		</release>
 		<description>Innowork billing</description>
@@ -13,7 +13,7 @@
 		<iconfile></iconfile>
 		<dependencies>
 			<dependency>innomatic[6.3.0]</dependency>
-			<dependency>innowork-core[3.3]</dependency>
+			<dependency>innowork-core[3.3.1]</dependency>
 			<dependency>innowork-groupware[2.0]</dependency>
 			<dependency>rhtemplatelib</dependency>
 			<suggestion>htmlmimemaillib[1.38-1]</suggestion>
