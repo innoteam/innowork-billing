@@ -236,8 +236,13 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $result = false;
         
         $vatId = (int) $vatId;
-        if (! strlen($vatId))
+        if (! strlen($vatId)) {
             $vatId = 0;
+        }
+        
+        if (!is_int($rowCounter)) {
+            $rowCounter = 0;
+        }
         
         if ($this->mItemId) {
             $locale_country = new \Innomatic\Locale\LocaleCountry(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getCountry());
