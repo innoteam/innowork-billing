@@ -251,23 +251,10 @@ function main_default($eventData)
             'value' => $eventData['filter_customerid']
         ));
 
-        if ($eventData['filter_customerid'] != 0) {
-            $search_keys['customerid'] = $eventData['filter_customerid'];
-        }
-
         // Account manager
         $account_manager_filter_sk = new WuiSessionKey('account_manager_filter', array(
             'value' => $eventData['filter_account_manager']
         ));
-
-        if ($eventData['filter_account_manager'] != '0') {
-            $search_keys['accountmanager'] = $eventData['filter_account_manager'];
-        }
-
-        // Year
-        if (isset($eventData['filter_year'])) {
-            $search_keys['emissiondate'] = $eventData['filter_year'];
-        }
 
         $year_filter_sk = new WuiSessionKey('year_filter', array(
             'value' => isset($eventData['filter_year']) ? $eventData['filter_year'] : ''
@@ -279,6 +266,12 @@ function main_default($eventData)
         ));
 
         // Status
+        $status_filter_sk = new WuiSessionKey('status_filter', array(
+            'value' => $eventData['filter_statusid']
+        ));
+    } else {
+        // Customer
+        $customer_filter_sk = new WuiSessionKey('customer_filter');
         if (strlen($customer_filter_sk->mValue) and $customer_filter_sk->mValue != 0) {
             $search_keys['customerid'] = $customer_filter_sk->mValue;
         }
@@ -302,6 +295,19 @@ function main_default($eventData)
         // Status
         $status_filter_sk = new WuiSessionKey('status_filter');
         $eventData['filter_status'] = $status_filter_sk->mValue;
+    }
+
+    if ($eventData['filter_customerid'] != 0) {
+        $search_keys['customerid'] = $eventData['filter_customerid'];
+    }
+
+    if ($eventData['filter_account_manager'] != '0') {
+        $search_keys['accountmanager'] = $eventData['filter_account_manager'];
+    }
+
+    // Year
+    if (isset($eventData['filter_year'])) {
+        $search_keys['emissiondate'] = $eventData['filter_year'];
     }
 
     if (strlen($eventData['filter_month']) && strlen($eventData['filter_year'])) {
@@ -382,67 +388,19 @@ function main_default($eventData)
     }
 
     $headers[0]['label'] = $gLocale->getStr('number.header');
-    $headers[0]['link'] = WuiEventsCall::buildEventsCallString('', array(
-        array(
-            'view',
-            'default',
-            array(
-                'sortby' => '0'
-            )
-        )
-    ));
+    $headers[0]['link']  = WuiEventsCall::buildEventsCallString('', array( array( 'view', 'default', array( 'sortby' => '0'))));
     $headers[1]['label'] = $gLocale->getStr('emissiondate.header');
-    $headers[1]['link'] = WuiEventsCall::buildEventsCallString('', array(
-        array(
-            'view',
-            'default',
-            array(
-                'sortby' => '1'
-            )
-        )
-    ));
+    $headers[1]['link']  = WuiEventsCall::buildEventsCallString('', array( array( 'view', 'default', array( 'sortby' => '1'))));
     $headers[2]['label'] = $gLocale->getStr('customer.header');
-    $headers[2]['link'] = WuiEventsCall::buildEventsCallString('', array(
-        array(
-            'view',
-            'default',
-            array(
-                'sortby' => '2'
-            )
-        )
-    ));
+    $headers[2]['link']  = WuiEventsCall::buildEventsCallString('', array( array( 'view', 'default', array( 'sortby' => '2'))));
     $headers[3]['label'] = $gLocale->getStr('total.header');
-    $headers[3]['link'] = WuiEventsCall::buildEventsCallString('', array(
-        array(
-            'view',
-            'default',
-            array(
-                'sortby' => '3'
-            )
-        )
-    ));
+    $headers[3]['link']  = WuiEventsCall::buildEventsCallString('', array( array( 'view', 'default', array( 'sortby' => '3'))));
     $headers[4]['label'] = $gLocale->getStr('duedate.header');
-    $headers[4]['link'] = WuiEventsCall::buildEventsCallString('', array(
-        array(
-            'view',
-            'default',
-            array(
-                'sortby' => '4'
-            )
-        )
-    ));
+    $headers[4]['link']  = WuiEventsCall::buildEventsCallString('', array( array( 'view', 'default', array( 'sortby' => '4'))));
     $headers[5]['label'] = $gLocale->getStr('paidamount.header');
-    $headers[5]['link'] = WuiEventsCall::buildEventsCallString('', array(
-        array(
-            'view',
-            'default',
-            array(
-                'sortby' => '5'
-            )
-        )
-    ));
+    $headers[5]['link']  = WuiEventsCall::buildEventsCallString('', array( array( 'view', 'default', array( 'sortby' => '5'))));
     $headers[6]['label'] = $gLocale->getStr('credit.header');
-    $search_results = $invoices->search($search_keys, \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()
+    $search_results      = $invoices->search($search_keys, \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()
         ->getUserId());
 
     $num_invoices = count($search_results);
