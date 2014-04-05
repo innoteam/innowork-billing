@@ -216,15 +216,7 @@ $gMain_disp = new WuiDispatcher('view');
 
 function invoices_list_action_builder($pageNumber)
 {
-    return WuiEventsCall::buildEventsCallString('', array(
-        array(
-            'view',
-            'default',
-            array(
-                'pagenumber' => $pageNumber
-            )
-        )
-    ));
+    return WuiEventsCall::buildEventsCallString('', array(array('view', 'default', array('pagenumber' => $pageNumber))));
 }
 
 define('XENBILLING_FILTER_STATUS_ALL', 0);
@@ -237,7 +229,6 @@ $gMain_disp->AddEvent('default', 'main_default');
 function main_default($eventData)
 {
     global $gLocale, $gPage_title, $gXml_def, $gPage_status, $gInnowork_core;
-
     // Account managers
     $users_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
         ->getDataAccess()
@@ -339,9 +330,7 @@ function main_default($eventData)
         $eventData['done'] = 'false';
     }
 
-    $tab_sess = new WuiSessionKey('xenprojecttab', array(
-        'value' => $eventData['done']
-    ));
+    $tab_sess = new WuiSessionKey('xenprojecttab', array('value' => $eventData['done']));
 
     $country = new \Innomatic\Locale\LocaleCountry(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getCountry());
 
@@ -453,7 +442,6 @@ function main_default($eventData)
         )
     ));
     $headers[6]['label'] = $gLocale->getStr('credit.header');
-
     $search_results = $invoices->search($search_keys, \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()
         ->getUserId());
 
@@ -521,7 +509,7 @@ function main_default($eventData)
 
     <string><name>filter_year</name>
       <args>
-        <disp>main</disp>
+        <disp>view</disp>
         <size>4</size>
         <value type="encoded">' . urlencode(isset($eventData['filter_year']) ? $eventData['filter_year'] : '') . '</value>
       </args>
@@ -529,7 +517,7 @@ function main_default($eventData)
 
     <string><name>filter_month</name>
       <args>
-        <disp>main</disp>
+        <disp>view</disp>
         <size>2</size>
         <value type="encoded">' . urlencode(isset($eventData['filter_month']) ? $eventData['filter_month'] : '') . '</value>
       </args>
@@ -564,7 +552,7 @@ function main_default($eventData)
     </label>
     <combobox row="1" col="1"><name>filter_customerid</name>
       <args>
-        <disp>main</disp>
+        <disp>view</disp>
         <elements type="array">' . WuiXml::encode($customers) . '</elements>
         <default type="encoded">' . urlencode(isset($eventData['filter_customerid']) ? $eventData['filter_customerid'] : '') . '</default>
       </args>
@@ -577,7 +565,7 @@ function main_default($eventData)
     </label>
     <combobox row="2" col="1"><name>filter_account_manager</name>
       <args>
-        <disp>main</disp>
+        <disp>view</disp>
         <elements type="array">' . WuiXml::encode($gUsers) . '</elements>
         <default type="encoded">' . urlencode(isset($eventData['filter_account_manager']) ? $eventData['filter_account_manager'] : '') . '</default>
       </args>
@@ -590,7 +578,7 @@ function main_default($eventData)
     </label>
     <combobox row="3" col="1"><name>filter_status</name>
       <args>
-        <disp>main</disp>
+        <disp>view</disp>
         <elements type="array">' . WuiXml::encode($statuses) . '</elements>
         <default type="encoded">' . urlencode(isset($eventData['filter_status']) ? $eventData['filter_status'] : '') . '</default>
       </args>
