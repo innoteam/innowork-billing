@@ -550,6 +550,30 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         return $result;
     }
 
+    public function GetAmountInvoiceForProject($projectid)
+    {
+        $invoices_amount = 0;
+
+        $domain_da = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')
+            ->getCurrentDomain()
+            ->getDataAccess();
+
+        $sql = "SELECT  * 
+                FROM    innowork_billing_invoices
+                WHERE   projectid = $projectid";
+
+        $invoices_rows_query = $domain_da->execute($sql);
+
+        $invoices_amount = 0;
+        while (!$invoices_rows_query->eof) {
+            $invoices_amount += $invoices_rows_query->getFields('amount');
+            $invoices_rows_query->moveNext();
+        }
+
+        return $invoices_amount;
+    }
+
+
     public function getInvoiceTotals()
     {
         $result = array();
