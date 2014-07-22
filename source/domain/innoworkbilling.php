@@ -368,7 +368,7 @@ function main_default($eventData)
 
     switch ($sort_by) {
         case '0':
-            $invoices->mSearchOrderBy = 'number' . ($sort_order == 'up' ? ' DESC' : '');
+            $invoices->mSearchOrderBy = 'id' . ($sort_order == 'up' ? ' DESC' : '');
             break;
         case '1':
             $invoices->mSearchOrderBy = 'emissiondate' . ($sort_order == 'up' ? ' DESC' : '');
