@@ -10,10 +10,22 @@ class InnoworkBillingSettingsHandler
         return $sets->GetKey('innoworkbilling-default-vat');
     }
 
+    public static function getDefaultBank()
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->GetKey('innoworkbilling-default-bank');
+    }
+
     public static function setDefaultVat($defaultVat)
     {
         $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
         return $sets->SetKey('innoworkbilling-default-vat', $defaultVat);
+    }
+
+    public static function setDefaultBank($defaultBank)
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->SetKey('innoworkbilling-default-bank', $defaultBank);
     }
 
     public static function getDefaultPayment()

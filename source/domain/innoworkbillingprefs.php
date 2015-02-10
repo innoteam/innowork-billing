@@ -81,6 +81,32 @@ $gToolbars['payments'] = array(
         ))
     )
 );
+$gToolbars['banks'] = array(
+    'banks' => array(
+        'label' => $gLocale->getStr('banks.toolbar'),
+        'themeimage' => 'listbulletleft',
+        'horiz' => 'true',
+        'action' => WuiEventsCall::buildEventsCallString('', array(
+            array(
+                'view',
+                'banks',
+                ''
+            )
+        ))
+    ),
+    'newbank' => array(
+        'label' => $gLocale->getStr('newbank.toolbar'),
+        'themeimage' => 'mathadd',
+        'horiz' => 'true',
+        'action' => WuiEventsCall::buildEventsCallString('', array(
+            array(
+                'view',
+                'newbank',
+                ''
+            )
+        ))
+    )
+);
 $gToolbars['settings'] = array(
     'settings' => array(
         'label' => $gLocale->getStr('settings.toolbar'),
@@ -138,6 +164,46 @@ function action_removevat($eventData)
     $xen_vat = new \Innowork\Billing\InnoworkBillingVat($eventData['id']);
     if ($xen_vat->Remove()) {
         $gPage_status = $gLocale->getStr('vat_removed.status');
+    }
+}
+
+// Banks 
+
+$gAction_disp->addEvent('newbank', 'action_newbank');
+
+function action_newbank($eventData)
+{
+    global $gPage_status, $gLocale;
+    
+    $bank = new \Innowork\Billing\InnoworkBillingBank();
+    if ($bank->create($eventData['bank'], $eventData['description'])) {
+        $gPage_status = $gLocale->getStr('bank_added.status');
+    }
+}
+
+$gAction_disp->addEvent('editbank', 'action_editbank');
+
+function action_editbank($eventData)
+{
+    global $gPage_status, $gLocale;
+    
+    $bank = new \Innowork\Billing\InnoworkBillingBank($eventData['id']);
+    
+    $bank->setName($eventData['bank']);
+    $bank->setDescription($eventData['description']);
+    
+    $gPage_status = $gLocale->getStr('bank_updated.status');
+}
+
+$gAction_disp->addEvent('removebank', 'action_removebank');
+
+function action_removebank($eventData)
+{
+    global $gPage_status, $gLocale;
+    
+    $bank = new \Innowork\Billing\InnoworkBillingBank($eventData['id']);
+    if ($bank->remove()) {
+        $gPage_status = $gLocale->getStr('bank_removed.status');
     }
 }
 
@@ -202,8 +268,9 @@ function action_setdefaults($eventData)
     global $gLocale, $gPage_status;
     
     $sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
-    $sets->SetDefaultPayment($eventData['paymentid']);
-    $sets->SetDefaultVat($eventData['vatid']);
+    $sets->setDefaultPayment($eventData['paymentid']);
+    $sets->setDefaultVat($eventData['vatid']);
+    $sets->setDefaultBank($eventData['bankid']);
     
     $gPage_status = $gLocale->getStr('settings_set.status');
 }
@@ -539,6 +606,286 @@ function main_editvat($eventData)
     ))) . '</action>
             <label type="encoded">' . urlencode($gLocale->getStr('editvat.submit')) . '</label>
             <formsubmit>editvat</formsubmit>
+          </args>
+        </button>
+
+  </children>
+</vertgroup>';
+}
+
+// Banks
+
+$gMain_disp->addEvent('banks', 'main_banks');
+
+function main_banks($eventData)
+{
+    global $gLocale, $gPage_title, $gXml_def, $gPage_status;
+    
+    $banks_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
+        ->getDataAccess()
+        ->Execute('SELECT * ' . 'FROM innowork_billing_banks ' . 'ORDER BY bank');
+    
+    if ($banks_query->getNumberRows()) {
+        $headers[0]['label'] = $gLocale->getStr('bank.header');
+        $headers[1]['label'] = $gLocale->getStr('description.header');
+        
+        $gXml_def = '<table>
+  <args>
+    <headers type="array">' . WuiXml::encode($headers) . '</headers>
+  </args>
+  <children>';
+        
+        $row = 0;
+        
+        while (! $banks_query->eof) {
+            $gXml_def .= '<label row="' . $row . '" col="0">
+  <args>
+    <label type="encoded">' . urlencode($banks_query->getFields('bank')) . '</label>
+  </args>
+</label>
+<label row="' . $row . '" col="1">
+  <args>
+    <label type="encoded">' . urlencode($banks_query->getFields('description')) . '</label>
+  </args>
+</label>
+<innomatictoolbar row="' . $row . '" col="2">
+  <args>
+    <frame>false</frame>
+    <toolbars type="array">' . WuiXml::encode(array(
+                'main' => array(
+                    'edit' => array(
+                        'label' => $gLocale->getStr('editbank.button'),
+                        'themeimage' => 'pencil',
+                        'horiz' => 'true',
+                        'action' => WuiEventsCall::buildEventsCallString('', array(
+                            array(
+                                'view',
+                                'editbank',
+                                array(
+                                    'id' => $banks_query->getFields('id')
+                                )
+                            )
+                        ))
+                    ),
+                    'remove' => array(
+                        'label' => $gLocale->getStr('removebank.button'),
+                        'themeimage' => 'mathsub',
+                        'horiz' => 'true',
+                        'needconfirm' => 'true',
+                        'confirmmessage' => $gLocale->getStr('removebank.confirm'),
+                        'action' => WuiEventsCall::buildEventsCallString('', array(
+                            array(
+                                'view',
+                                'banks',
+                                ''
+                            ),
+                            array(
+                                'action',
+                                'removebank',
+                                array(
+                                    'id' => $banks_query->getFields('id')
+                                )
+                            )
+                        ))
+                    )
+                )
+            )) . '</toolbars>
+  </args>
+</innomatictoolbar>';
+            $banks_query->MoveNext();
+            $row ++;
+        }
+        
+        $gXml_def .= '  </children>
+</table>';
+    } else {
+        $gPage_status = $gLocale->getStr('nobanks.status');
+    }
+}
+
+$gMain_disp->addEvent('newbank', 'main_newbank');
+
+function main_newbank($eventData)
+{
+    global $gLocale, $gXml_def;
+    
+    $gXml_def = '<vertgroup>
+  <children>
+
+    <form><name>newbank</name>
+      <args>
+            <action type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString('', array(
+        array(
+            'view',
+            'banks',
+            ''
+        ),
+        array(
+            'action',
+            'newbank',
+            ''
+        )
+    ))) . '</action>
+      </args>
+      <children>
+
+        <grid>
+          <children>
+
+            <label row="0" col="0">
+              <args>
+                <label type="encoded">' . urlencode($gLocale->getStr('bank.label')) . '</label>
+              </args>
+            </label>
+
+            <string row="0" col="1"><name>bank</name>
+              <args>
+                <disp>action</disp>
+                <size>15</size>
+              </args>
+            </string>
+
+            <label row="1" col="0">
+              <args>
+                <label type="encoded">' . urlencode($gLocale->getStr('description.label')) . '</label>
+              </args>
+            </label>
+
+            <text row="1" col="1"><name>description</name>
+              <args>
+                <disp>action</disp>
+                <rows>3</rows>
+                <cols>50</cols>
+              </args>
+            </text>
+                    
+          </children>
+        </grid>
+
+      </children>
+    </form>
+
+    <horizbar/>
+
+        <button><name>apply</name>
+          <args>
+            <themeimage>buttonok</themeimage>
+            <horiz>true</horiz>
+            <frame>false</frame>
+            <action type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString('', array(
+        array(
+            'view',
+            'banks',
+            ''
+        ),
+        array(
+            'action',
+            'newbank',
+            ''
+        )
+    ))) . '</action>
+            <label type="encoded">' . urlencode($gLocale->getStr('newbank.submit')) . '</label>
+            <formsubmit>newbank</formsubmit>
+          </args>
+        </button>
+
+  </children>
+</vertgroup>';
+}
+
+$gMain_disp->addEvent('editbank', 'main_editbank');
+
+function main_editbank($eventData)
+{
+    global $gLocale, $gXml_def;
+    
+    $bank_query = &\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
+        ->getDataAccess()
+        ->Execute('SELECT * ' . 'FROM innowork_billing_banks ' . 'WHERE id=' . $eventData['id']);
+    
+    $gXml_def = '<vertgroup>
+  <children>
+
+    <form><name>editbank</name>
+      <args>
+            <action type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString('', array(
+        array(
+            'view',
+            'banks',
+            ''
+        ),
+        array(
+            'action',
+            'editbank',
+            array(
+                'id' => $eventData['id']
+            )
+        )
+    ))) . '</action>
+      </args>
+      <children>
+
+        <grid>
+          <children>
+
+            <label row="0" col="0">
+              <args>
+                <label type="encoded">' . urlencode($gLocale->getStr('bank.label')) . '</label>
+              </args>
+            </label>
+
+            <string row="0" col="1"><name>bank</name>
+              <args>
+                <disp>action</disp>
+                <size>15</size>
+                <value type="encoded">' . urlencode($bank_query->getFields('bank')) . '</value>
+              </args>
+            </string>
+
+            <label row="1" col="0">
+              <args>
+                <label type="encoded">' . urlencode($gLocale->getStr('description.label')) . '</label>
+              </args>
+            </label>
+
+            <text row="1" col="1"><name>description</name>
+              <args>
+                <disp>action</disp>
+                <rows>3</rows>
+                <cols>50</cols>
+                <value type="encoded">' . urlencode($bank_query->getFields('description')) . '</value>
+              </args>
+            </text>
+                    
+          </children>
+        </grid>
+
+      </children>
+    </form>
+
+    <horizbar/>
+
+        <button><name>apply</name>
+          <args>
+            <themeimage>buttonok</themeimage>
+            <horiz>true</horiz>
+            <frame>false</frame>
+            <action type="encoded">' . urlencode(WuiEventsCall::buildEventsCallString('', array(
+        array(
+            'view',
+            'banks',
+            ''
+        ),
+        array(
+            'action',
+            'editbank',
+            array(
+                'id' => $eventData['id']
+            )
+        )
+    ))) . '</action>
+            <label type="encoded">' . urlencode($gLocale->getStr('editbank.submit')) . '</label>
+            <formsubmit>editbank</formsubmit>
           </args>
         </button>
 
@@ -900,6 +1247,16 @@ function main_settings($eventData)
         $payments_query->MoveNext();
     }
     
+    $banks_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
+        ->getDataAccess()
+        ->execute('SELECT id,bank ' . 'FROM innowork_billing_banks ' . 'ORDER BY bank');
+    
+    $banks[0] = $gLocale->getStr('nobank.label');
+    while (!$banks_query->eof) {
+        $banks[$banks_query->getFields('id')] = $banks_query->getFields('bank');
+        $banks_query->moveNext();
+    }
+
     $gXml_def = '<vertgroup>
   <children>
 
@@ -1053,6 +1410,19 @@ function main_settings($eventData)
                       </args>
                     </combobox>
 
+                    <label row="2" col="0">
+                      <args>
+                        <label type="encoded">' . urlencode($gLocale->getStr('default_bank.label')) . '</label>
+                      </args>
+                    </label>
+
+                    <combobox row="2" col="1"><name>bankid</name>
+                      <args>
+                        <disp>action</disp>
+                        <elements type="array">' . WuiXml::encode($banks) . '</elements>
+                        <default>' . $sets->getDefaultBank() . '</default>
+                      </args>
+                    </combobox>
                   </children>
                 </grid>
 

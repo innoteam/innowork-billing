@@ -16,6 +16,7 @@
         <field  name="paidamount"   type="decimal" length="12,2"/>
         <field  name="trashed"  type="boolean"/>
         <field name="accountmanager" type="text"/>
+        <field  name="bankid"    type="integer"/>
         <key    field="id"  type="unique"/>
     </table>
 

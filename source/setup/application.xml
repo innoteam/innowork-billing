@@ -50,6 +50,7 @@
 		<class name="innowork/billing/InnoworkBillingPayment.php" />
 		<class name="innowork/billing/InnoworkBillingSettingsHandler.php" />
 		<class name="innowork/billing/InnoworkBillingVat.php" />
+		<class name="innowork/billing/InnoworkBillingBank.php" />
 		
 	    <domaintable
 	        name="innowork_billing_invoices"
@@ -63,6 +64,9 @@
 	    <domaintable
 	        name="innowork_billing_payments"
 	        file="innowork_billing_payments.xml"/>
+	    <domaintable
+	        name="innowork_billing_banks"
+	        file="innowork_billing_banks.xml"/>
 		
 		<domaingroup name="finance"
 			catalog="innowork-billing::misc" />

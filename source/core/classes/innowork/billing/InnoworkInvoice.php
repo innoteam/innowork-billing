@@ -31,6 +31,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $this->mKeys['number'] = 'text';
         $this->mKeys['customerid'] = 'table:innowork_directory_companies:companyname:integer';
         $this->mKeys['projectid'] = 'table:innowork_projects:name:integer';
+        $this->mKeys['bankid'] = 'table:innowork_billing_banks:bank:integer';
         $this->mKeys['emissiondate'] = 'timestamp';
         $this->mKeys['duedate'] = 'timestamp';
         $this->mKeys['amount'] = 'decimal';
@@ -42,6 +43,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $this->mSearchResultKeys[] = 'number';
         $this->mSearchResultKeys[] = 'emissiondate';
         $this->mSearchResultKeys[] = 'customerid';
+        $this->mSearchResultKeys[] = 'bankid';
         $this->mSearchResultKeys[] = 'projectid';
         $this->mSearchResultKeys[] = 'duedate';
         $this->mSearchResultKeys[] = 'amount';
@@ -78,6 +80,10 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         if (! isset($params['customerid']) or ! strlen($params['customerid']))
             $params['customerid'] = '0';
         
+        if (!isset($params['bankid']) or !strlen($params['bankid'])) {
+            $params['bankid'] = '0';
+        }
+
         if (count($params)) {
             $item_id = $this->mrDomainDA->getNextSequenceValue($this->mTable . '_id_seq');
             
@@ -113,8 +119,10 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
                     case 'customerid':
                     case 'projectid':
                     case 'paymentid':
-                        if (! strlen($key))
+                    case 'bankid':
+                        if (! strlen($key)) {
                             $key = 0;
+                        }
                         $keys .= $key_pre . $key;
                         $values .= $value_pre . $val;
                         break;
@@ -179,6 +187,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
                             case 'customerid':
                             case 'projectid':
                             case 'paymentid':
+                            case 'bankid':
                                 if (! strlen($value))
                                     $value = 0;
                                 if (! $start)
@@ -691,6 +700,7 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $inv_vats = $this->getVats();
         
         $payment = new \Innowork\Billing\InnoworkBillingPayment($inv_data['paymentid']);
+        $bank    = new \Innowork\Billing\InnoworkBillingBank($inv_data['bankid']);
         
         $template->Register('invoice', 'tpl_invoice_number', $inv_data['number']);
         $template->Register('invoice', 'tpl_invoice_emissiondate', $locale_country->FormatShortArrayDate(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
@@ -703,6 +713,9 @@ class InnoworkInvoice extends \Innowork\Core\InnoworkItem
         $template->Register('invoice', 'tpl_invoice_amount', number_format($inv_data['amount'], $locale_country->FractDigits(), $locale_country->MoneyDecimalSeparator(), $locale_country->MoneyThousandsSeparator()));
         $template->Register('invoice', 'tpl_invoice_vat', number_format($inv_data['vat'], $locale_country->FractDigits(), $locale_country->MoneyDecimalSeparator(), $locale_country->MoneyThousandsSeparator()));
         $template->Register('invoice', 'tpl_invoice_total', number_format($inv_data['total'], $locale_country->FractDigits(), $locale_country->MoneyDecimalSeparator(), $locale_country->MoneyThousandsSeparator()));
+        // Bank
+        $template->register('invoice', 'tpl_invoice_bankname',        $bank->getName());
+        $template->register('invoice', 'tpl_invoice_bankdescription', nl2br($bank->getDescription()));
         
         // Customer data
         

@@ -1126,6 +1126,19 @@ function main_showinvoice($eventData)
         $payments_query->MoveNext();
     }
 
+    // Banks 
+
+    $banks_query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()
+        ->getDataAccess()
+        ->execute('SELECT * ' . 'FROM innowork_billing_banks ' . 'ORDER BY bank');
+
+    $banks['0'] = $gLocale->getStr('nobank.label');
+
+    while (!$banks_query->eof) {
+        $banks[$banks_query->getFields('id')] = $banks_query->getFields('bank');
+        $banks_query->moveNext();
+    }
+    
     // Due date
 
     $rows_headers[0]['label'] = $gLocale->getStr('row_description.header');
@@ -1385,6 +1398,26 @@ function main_showinvoice($eventData)
                 <type>date</type>
               </args>
             </date>
+
+          </children>
+        </horizgroup>
+
+        <horizgroup><name>bank</name>
+          <args><width>0%</width></args>
+          <children>
+
+            <label><name>bank</name>
+              <args>
+                <label type="encoded">' . urlencode($gLocale->getStr('bank.label')) . '</label>
+              </args>
+            </label>
+            <combobox><name>bankid</name>
+              <args>
+                <disp>action</disp>
+                <elements type="array">' . WuiXml::encode($banks) . '</elements>
+                <default>' . $inv_data['bankid'] . '</default>
+              </args>
+            </combobox>
 
           </children>
         </horizgroup>
