@@ -4,18 +4,18 @@
 	<definition>
 		<idname>innowork-billing</idname>
 		<release>
-			<version>2.0.0</version>
-			<date>2014/01/11</date>
+			<version>2.2.0</version>
+			<date>2015/02/10</date>
 			<changesfile>CHANGES</changesfile>
 		</release>
 		<description>Innowork billing</description>
 		<category>intranet</category>
 		<iconfile></iconfile>
 		<dependencies>
-			<dependency>innomatic[6.1]</dependency>
-			<dependency>innowork-core[3.1]</dependency>
+			<dependency>innomatic[6.3.0]</dependency>
+			<dependency>innowork-core[3.3.1]</dependency>
 			<dependency>innowork-groupware[2.0]</dependency>
-			<dependency>rhtemplatelib</dependency>
+			<dependency>rhtemplatelib[1.3-3]</dependency>
 			<suggestion>htmlmimemaillib[1.38-1]</suggestion>
 			<suggestion>smtpsendlib[1.19-1]</suggestion>
 		</dependencies>
@@ -28,7 +28,7 @@
 				<email>info@innoteam.it</email>
 				<web>http://www.innoteam.it/</web>
 			</author>
-			<copyright>Copyright (c) 2003-2013 Innoteam S.r.l.</copyright>
+			<copyright>Copyright (c) 2003-2015 Innoteam S.r.l.</copyright>
 			<license>Commercial</license>
 			<licensefile>LICENSE</licensefile>
 		</legal>
@@ -50,6 +50,7 @@
 		<class name="innowork/billing/InnoworkBillingPayment.php" />
 		<class name="innowork/billing/InnoworkBillingSettingsHandler.php" />
 		<class name="innowork/billing/InnoworkBillingVat.php" />
+		<class name="innowork/billing/InnoworkBillingBank.php" />
 		
 	    <domaintable
 	        name="innowork_billing_invoices"
@@ -63,6 +64,9 @@
 	    <domaintable
 	        name="innowork_billing_payments"
 	        file="innowork_billing_payments.xml"/>
+	    <domaintable
+	        name="innowork_billing_banks"
+	        file="innowork_billing_banks.xml"/>
 		
 		<domaingroup name="finance"
 			catalog="innowork-billing::misc" />
@@ -75,7 +79,7 @@
 			category="preferences" themeicon="vcard" themeicontype="mimetypes"
 			catalog="innowork-billing::misc" />
 
-		<innoworkitemtype name="billing" file="billing"
+		<innoworkitemtype name="invoice" file="invoice"
 			catalog="innowork-billing::misc"
 			classfile="innowork/billing/InnoworkInvoice.php" classname="InnoworkInvoice" icon="kspread"
 			icontype="apps" domainpanel="innoworkbilling"

@@ -5,6 +5,7 @@
         <field	name="id"   type="integer"  notnull="1"/>
         <field  name="vat"  type="string" length="25" notnull="1"/>
         <field  name="percentual"   type="string" length="5" notnull="1"/>
+        <field name="description" type="text" />
         <key    field="id"  type="unique"/>
     </table>
 

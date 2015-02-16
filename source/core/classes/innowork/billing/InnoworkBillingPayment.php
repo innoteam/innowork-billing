@@ -1,4 +1,5 @@
 <?php
+namespace Innowork\Billing;
 
 class InnoworkBillingPayment
 {
@@ -7,7 +8,7 @@ class InnoworkBillingPayment
 	var $mDays = 0;
 	var $mMonthEnd = false;
 
-	function InnoworkBillingPayment(
+	public function __construct(
 			$id = 0
 	)
 	{
@@ -183,8 +184,7 @@ class InnoworkBillingPayment
 					'WHERE paymentid='.$this->mId
 			);
 
-			require_once('innowork/billing/InnoworkBillingSettingsHandler.php');
-			$sets = new InnoworkBillingSettingsHandler();
+			$sets = new \Innowork\Billing\InnoworkBillingSettingsHandler();
 
 			if ( $sets->getDefaultPayment() == $this->mId )
 			{
@@ -200,5 +200,25 @@ class InnoworkBillingPayment
 		}
 
 		return $result;
+	}
+	
+	/**
+	 * Extracts the list of payment types.
+	 *
+	 * @return array
+	 */
+	public static function getPaymentList()
+	{
+	    $query = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess()->execute(
+	        'SELECT id,description FROM innowork_billing_payments ORDER BY description'
+	    );
+	
+	    $list = array();
+	    while (!$query->eof) {
+	        $list[$query->getFields('id')] = $query->getFields('description');
+	        $query->moveNext();
+	    }
+	
+	    return $list;
 	}
 }

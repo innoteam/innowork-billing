@@ -1,131 +1,109 @@
 <?php
+namespace Innowork\Billing;
 
 class InnoworkBillingSettingsHandler
 {
-	function GetDefaultVat()
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->GetKey( 'innoworkbilling-default-vat' );
-	}
 
-	function SetDefaultVat(
-			$defaultVat
-	)
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->SetKey( 'innoworkbilling-default-vat', $defaultVat );
-	}
+    public static function getDefaultVat()
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->GetKey('innoworkbilling-default-vat');
+    }
 
-	function GetDefaultPayment()
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->GetKey( 'innoworkbilling-default-payment' );
-	}
+    public static function getDefaultBank()
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->GetKey('innoworkbilling-default-bank');
+    }
 
-	function SetDefaultPayment(
-			$defaultPayment
-	)
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->SetKey( 'innoworkbilling-default-payment', $defaultPayment );
-	}
+    public static function setDefaultVat($defaultVat)
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->SetKey('innoworkbilling-default-vat', $defaultVat);
+    }
 
-	function GetInvoiceTemplate()
-	{
-		$result = '';
+    public static function setDefaultBank($defaultBank)
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->SetKey('innoworkbilling-default-bank', $defaultBank);
+    }
 
-		$file_name = SITESTUFF_PATH.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDomainId().'/conf/innoworkbilling_invoice.html';
+    public static function getDefaultPayment()
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->GetKey('innoworkbilling-default-payment');
+    }
 
-		if (
-		file_exists( $file_name )
-		and
-		$fp = fopen( $file_name, 'r' )
-		)
-		{
-			$result = fread( $fp, filesize( $file_name ) );
-			fclose( $fh );
-		}
-		else
-		{
-			require_once('innomatic/locale/LocaleCatalog.php');
-			require_once('innomatic/locale/LocaleCountry.php');
+    public static function setDefaultPayment($defaultPayment)
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->SetKey('innoworkbilling-default-payment', $defaultPayment);
+    }
 
-			$locale = new LocaleCatalog(
-					'innowork-billing::misc',
-					\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage()
-			);
+    public static function getInvoiceTemplate()
+    {
+        $result = '';
+        
+        $file_name = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getHome() . 'core/domains/' . \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDomainId() . '/conf/innoworkbilling_invoice.html';
+        
+        if (file_exists($file_name) and $fp = fopen($file_name, 'r')) {
+            $result = fread($fp, filesize($file_name));
+            fclose($fp);
+        } else {
+            $locale = new \Innomatic\Locale\LocaleCatalog('innowork-billing::misc', \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentUser()->getLanguage());
+            
+            $result = $locale->GetStr('notemplate_set');
+        }
+        
+        return $result;
+    }
 
-			$result = $locale->GetStr( 'notemplate_set' );
-		}
+    public static function setInvoiceTemplate($invoiceTemplateContent)
+    {
+        $result = false;
+        
+        $file_name = \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getHome() . 'core/domains/' . \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDomainId() . '/conf/innoworkbilling_invoice.html';
+        
+        if ($fp = fopen($file_name, 'w')) {
+            $result = fwrite($fp, $invoiceTemplateContent);
+        }
+        
+        return $result;
+    }
 
-		return $result;
-	}
+    public static function getNotifiesEmail()
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->GetKey('innoworkbilling-notifies-email');
+    }
 
-	function SetInvoiceTemplate(
-			$invoiceTemplateContent
-	)
-	{
-		$result = false;
+    public static function setNotifiesEmail($email)
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->SetKey('innoworkbilling-notifies-email', $email);
+    }
 
-		$file_name = SITESTUFF_PATH.\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDomainId().'/conf/innoworkbilling_invoice.html';
+    public static function getEmail()
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->GetKey('innoworkbilling-email');
+    }
 
-		if ( $fp = fopen( $file_name, 'w' ) )
-		{
-			$result = fwrite( $fp, $invoiceTemplateContent );
-		}
+    public static function setEmail($email)
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->SetKey('innoworkbilling-email', $email);
+    }
 
-		return $result;
-	}
+    public static function getSmtpServer()
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->GetKey('innoworkbilling-smtp-server');
+    }
 
-	function GetNotifiesEmail()
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->GetKey( 'innoworkbilling-notifies-email' );
-	}
-
-	function SetNotifiesEmail(
-			$email
-	)
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->SetKey( 'innoworkbilling-notifies-email', $email );
-	}
-
-	function GetEmail()
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->GetKey( 'innoworkbilling-email' );
-	}
-
-	function SetEmail(
-			$email
-	)
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->SetKey( 'innoworkbilling-email', $email );
-	}
-
-	function GetSmtpServer()
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->GetKey( 'innoworkbilling-smtp-server' );
-	}
-
-	function SetSmtpServer(
-			$server
-	)
-	{
-		require_once('innomatic/domain/DomainSettings.php');
-		$sets = new DomainSettings( \Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess() );
-		return $sets->SetKey( 'innoworkbilling-smtp-server', $server );
-	}
+    public static function setSmtpServer($server)
+    {
+        $sets = new \Innomatic\Domain\DomainSettings(\Innomatic\Core\InnomaticContainer::instance('\Innomatic\Core\InnomaticContainer')->getCurrentDomain()->getDataAccess());
+        return $sets->SetKey('innoworkbilling-smtp-server', $server);
+    }
 }
