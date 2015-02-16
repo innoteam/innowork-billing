@@ -4,14 +4,14 @@
 
    Innowork-Billing build file
 
-   Copyright (c) 2003-2014 Innoteam Srl All rights reserved.
+   Copyright (c) 2003-2015 Innoteam Srl All rights reserved.
 
   =======================================================================
 -->
 <project name="Innowork Billing" default="package">
 
 	<property name="name" value="innowork-billing" />
-	<property name="version" value="2.1.0" />
+	<property name="version" value="2.2.0" />
 
 	<target name="sources">
 		<tar destfile="${basedir}/build/${name}-src-${version}.tgz" compression="gzip">
@@ -35,7 +35,7 @@
 		</tar>
 	</target>
 
-	<target name="dev" depends="build">
+	<target name="dev" depends="package">
         <exec executable="scp">
             <arg value="${basedir}/build/${name}-${version}.tgz" />
             <arg value="innomatic-dev:/tmp/" />

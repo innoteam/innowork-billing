@@ -4,8 +4,8 @@
 	<definition>
 		<idname>innowork-billing</idname>
 		<release>
-			<version>2.1.0</version>
-			<date>2014/02/16</date>
+			<version>2.2.0</version>
+			<date>2015/02/10</date>
 			<changesfile>CHANGES</changesfile>
 		</release>
 		<description>Innowork billing</description>
@@ -28,7 +28,7 @@
 				<email>info@innoteam.it</email>
 				<web>http://www.innoteam.it/</web>
 			</author>
-			<copyright>Copyright (c) 2003-2013 Innoteam S.r.l.</copyright>
+			<copyright>Copyright (c) 2003-2015 Innoteam S.r.l.</copyright>
 			<license>Commercial</license>
 			<licensefile>LICENSE</licensefile>
 		</legal>
